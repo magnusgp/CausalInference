@@ -20,6 +20,17 @@ def sampleLoad(filepath):
         print("\tHeaders:", headers)
         return data
 
+def sampleLoadPd(filepath):
+    # Import csv file using pandas library and read it
+    import pandas as pd
+    df = pd.read_csv(filepath)
+    # Print data summary
+    print("\nData Summary:")
+    print("\tNumber of rows:", len(df))
+    print("\tNumber of columns:", len(df.columns))
+    print("\tHeaders:", df.columns)
+    return df
+
 if __name__ == '__main__':
     # Get the filepath from the user
     path = 'sample/data_435.csv'
