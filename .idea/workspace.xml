@@ -27,14 +27,6 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "/Users/Mads/Desktop/DTU/4. Semester/Active ML/MiniProject03/CausalInference",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors"
-  }
-}]]></component>
   <component name="RunManager">
     <configuration name="distributions" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Project3" />
