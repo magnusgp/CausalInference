@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 class structEqModel():
     def __init__(self, n, intervene = False):
@@ -16,18 +17,39 @@ class structEqModel():
 
     def plotHist(self, dist=None, bins=20):
         import matplotlib.pyplot as plt
-        dists = ["a", "b", "c", "d", "e", "f"]
-        distsModel = [self.a, self.b, self.c, self.d, self.e, self.f]
+        if dist is not None:
+            dists = ["a", "b", "c", "d", "e", "f"]
+            distsModel = [self.a, self.b, self.c, self.d, self.e, self.f]
 
-        if (len(dist) > 1):
-            for i in range(len(dist)):
-                plt.suptitle('Model distribution ' + dist[i])
-                plt.hist(distsModel[dist.index(dist[i])], bins=bins, label=dists[dist.index(dist[i])])
+            if (len(dist) > 1):
+                for i in range(len(dist)):
+                    plt.suptitle('Model distribution ' + dist[i])
+                    plt.hist(distsModel[dist.index(dist[i])], bins=bins, label=dists[dist.index(dist[i])])
+                    plt.show()
+
+            else:
+                plt.hist(distsModel[dists.index(dist)], bins=bins)
                 plt.show()
+        else:
+            print("Error: no distribution is given")
+
+    def plotSamples(self, samples, node='all', pd = False):
+        if pd and node != 'all':
+            plt.hist(samples[node], bins=20)
+            plt.show()misc
 
         else:
-            plt.hist(distsModel[dists.index(dist)], bins=bins)
-            plt.show()
+            all_nodes = ['A', 'B', 'C', 'D']
+            if node !='all':
+                nodeidx = all_nodes.index(node) + 1
+                plt.hist(samples[nodeidx], bins = 5)
+                plt.show()
+
+            elif node=='all':
+                nodes = all_nodes
+
+            else:
+                print("Error: node not found")
 
     def mixedVar(self, sigmax, sigmay, a, b, sigmaz=None, c=None):
         if sigmaz is None and c is None:
@@ -35,9 +57,12 @@ class structEqModel():
         else:
             return a ** 2 * sigmax ** 2 + b ** 2 * sigmay ** 2 + c ** 2 * sigmaz ** 2 + 2 * a * b * sigmax * sigmay * sigmaz
 
-    def loadData(self, path):
-        from sampleLoad import sampleLoad
-        self.data = sampleLoad(path)
+    def loadData(self, path, pd = False):
+        from sampleLoad import sampleLoad, sampleLoadPd
+        if pd:
+            self.data = sampleLoadPd(path)
+        else:
+            self.data = sampleLoad(path)
         return self.data
 
 if __name__ == "__main__":
