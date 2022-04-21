@@ -29,3 +29,38 @@ class structEqModel():
             plt.hist(distsModel[dists.index(dist)], bins=bins)
             plt.show()
 
+    def mixedVar(self, sigmax, sigmay, a, b, sigmaz=None, c=None):
+        if sigmaz is None and c is None:
+            return a ** 2 * sigmax ** 2 + b ** 2 * sigmay ** 2 + 2 * a * b * sigmax * sigmay
+        else:
+            return a ** 2 * sigmax ** 2 + b ** 2 * sigmay ** 2 + c ** 2 * sigmaz ** 2 + 2 * a * b * sigmax * sigmay * sigmaz
+
+    def loadData(self, path):
+        from sampleLoad import sampleLoad
+        self.data = sampleLoad(path)
+        return self.data
+
+if __name__ == "__main__":
+    from tabulate import tabulate
+
+    # set random seed for numpy
+    np.random.seed(0)
+    model = structEqModel(n=1000)
+
+    print("Var[B] = ", model.mixedVar(2, (-1 / 2), 1 / 2, 1))
+    print("\nVar[C] = ", model.mixedVar(2, 1, 1, 1))
+    print("\nVar[D] = ", model.mixedVar(sigmax=model.mixedVar(2, (-1 / 2), 1 / 2, 1), sigmay=model.mixedVar(2, 1, 1, 1),
+                                        a=2 / 3, b=-(1 / 2), sigmaz=1, c=1))
+
+    data = [['A', round(np.mean(model.a), 3), round(np.var(model.a), 3)],
+            ['B', round(np.mean(model.b), 3), round(np.var(model.b), 3)],
+            ['C', round(np.mean(model.c), 3), round(np.var(model.c), 3)]]
+
+    print("\n\nTable of expected values and variances:")
+    print(tabulate(data, headers=['Variable', 'Expected value', 'Expected variance'], numalign="left"))
+
+    # model.plotHist(dist=["a", "b", "c"])
+    model.plotHist(dist=["d", "e", "f"])
+
+    structEqModel(n=1000, intervene=True).plotHist(dist=["d", "e", "f"])
+
