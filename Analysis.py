@@ -27,5 +27,12 @@ def main(data = None):
 
 
 
+df = pd.read_csv('sample/data_569.csv', index_col = 0)
+df2 = pd.read_csv('sample/data_C=1-57.csv', index_col = 0)
+df3 = pd.read_csv('sample/data_C=-1-57.csv', index_col = 0)
 
-main(data = 'data_C=1')
+print('A min/max: ',min(df['A']),max(df['A']),"Mean: ", df['A'].mean(),"Std: ", df['A'].std())
+print('A min/max: ',min(df2['A']),max(df2['A']), df2['A'].mean(), df2['A'].std())
+print('A min/max: ',min(df3['A']),max(df3['A']), df3['A'].mean(), df3['A'].std())
+
+#main(data = 'data_C=-1-57')
