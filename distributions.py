@@ -27,5 +27,5 @@ def get_best_distribution(data):
 
 data = pd.read_csv("sample/data_435.csv")
 
-get_best_distribution(data["a"])
+get_best_distribution(data["A"])
 

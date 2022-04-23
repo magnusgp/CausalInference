@@ -1,0 +1,17 @@
+Index: distributions.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\nimport scipy.stats as st\nimport pandas as pd\ndef get_best_distribution(data):\n    dist_names = [\"norm\", \"exponweib\", \"weibull_max\", \"weibull_min\", \"pareto\", \"genextreme\"]\n    dist_results = []\n    params = {}\n    for dist_name in dist_names:\n        dist = getattr(st, dist_name)\n        param = dist.fit(data)\n\n        params[dist_name] = param\n        # Applying the Kolmogorov-Smirnov test\n        D, p = st.kstest(data, dist_name, args=param)\n        print(\"p value for \"+dist_name+\" = \"+str(p))\n        dist_results.append((dist_name, p))\n\n    # select the best fitted distribution\n    best_dist, best_p = (max(dist_results, key=lambda item: item[1]))\n    # store the name of the best fit and its p value\n\n    print(\"Best fitting distribution: \"+str(best_dist))\n    print(\"Best p value: \"+ str(best_p))\n    print(\"Parameters for the best fit: \"+ str(params[best_dist]))\n\n    return best_dist, best_p, params[best_dist]\n\ndata = pd.read_csv(\"sample/data_435.csv\")\n\nget_best_distribution(data[\"a\"])\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/distributions.py b/distributions.py
+--- a/distributions.py	
++++ b/distributions.py	
+@@ -27,5 +27,5 @@
+ 
+ data = pd.read_csv("sample/data_435.csv")
+ 
+-get_best_distribution(data["a"])
++get_best_distribution(data["A"])
+ 
