@@ -1,0 +1,334 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\">\n      <change afterPath=\"$PROJECT_DIR$/.RData\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.Rhistory\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/r_causality.R\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/sample/data_518.csv\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/misc.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/Analysis.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Analysis.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/structEqModel.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/structEqModel.py\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitSEFilterConfiguration\">\n    <file-type-list>\n      <filtered-out-file-type name=\"LOCAL_BRANCH\" />\n      <filtered-out-file-type name=\"REMOTE_BRANCH\" />\n      <filtered-out-file-type name=\"TAG\" />\n      <filtered-out-file-type name=\"COMMIT_BY_MESSAGE\" />\n    </file-type-list>\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"286lc3q2Pdeol8JWLyDnUL8E3Jb\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"RunManager\" selected=\"Python.Analysis\">\n    <configuration name=\"Analysis\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/Analysis.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"distributions\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"Project3\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/distributions.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"sampleLoad\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/sampleLoad.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"structEqModel\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/structEqModel.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"Python.Analysis\" />\n        <item itemvalue=\"Python.structEqModel\" />\n        <item itemvalue=\"Python.sampleLoad\" />\n        <item itemvalue=\"Python.distributions\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\" />\n      <created>1650544993883</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1650544993883</updated>\n    </task>\n    <servers />\n  </component>\n  <component name=\"XDebuggerManager\">\n    <breakpoint-manager>\n      <breakpoints>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\n          <url>file://$PROJECT_DIR$/distributions.py</url>\n          <line>29</line>\n          <option name=\"timeStamp\" value=\"1\" />\n        </line-breakpoint>\n      </breakpoints>\n    </breakpoint-manager>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 350fca2e954288d1fcf7c305935a8d2aa1527be7)
++++ b/.idea/workspace.xml	(date 1650826214720)
+@@ -1,15 +1,17 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="AutoImportSettings">
++    <option name="autoReloadType" value="SELECTIVE" />
++  </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="">
+-      <change afterPath="$PROJECT_DIR$/.RData" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.Rhistory" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/r_causality.R" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/sample/data_518.csv" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
++    <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="workspace files">
++      <change afterPath="$PROJECT_DIR$/causal_model.png" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/distfit.py" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/dowhy_test.py" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/obs_data20-32-14.png" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/packageTests/GPyPackagee.py" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/packageTests/skLearnGP.py" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/Analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analysis.py" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/structEqModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/structEqModel.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -45,7 +47,11 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="RunManager" selected="Python.Analysis">
++  <component name="PropertiesComponent">
++    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
++    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
++  </component>
++  <component name="RunManager" selected="Python.GPyPackagee">
+     <configuration name="Analysis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+       <module name="CausalInference" />
+       <option name="INTERPRETER_OPTIONS" value="" />
+@@ -67,19 +73,40 @@
+       <option name="INPUT_FILE" value="" />
+       <method v="2" />
+     </configuration>
+-    <configuration name="distributions" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+-      <module name="Project3" />
++    <configuration name="GPyPackage" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
++      <module name="CausalInference" />
+       <option name="INTERPRETER_OPTIONS" value="" />
+       <option name="PARENT_ENVS" value="true" />
+       <envs>
+         <env name="PYTHONUNBUFFERED" value="1" />
+       </envs>
+-      <option name="SDK_HOME" value="/usr/local/bin/python3.8" />
++      <option name="SDK_HOME" value="" />
++      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/packageTests" />
++      <option name="IS_MODULE_SDK" value="false" />
++      <option name="ADD_CONTENT_ROOTS" value="true" />
++      <option name="ADD_SOURCE_ROOTS" value="true" />
++      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/packageTests/GPyPackage.py" />
++      <option name="PARAMETERS" value="" />
++      <option name="SHOW_COMMAND_LINE" value="false" />
++      <option name="EMULATE_TERMINAL" value="false" />
++      <option name="MODULE_MODE" value="false" />
++      <option name="REDIRECT_INPUT" value="false" />
++      <option name="INPUT_FILE" value="" />
++      <method v="2" />
++    </configuration>
++    <configuration name="distfit" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
++      <module name="CausalInference" />
++      <option name="INTERPRETER_OPTIONS" value="" />
++      <option name="PARENT_ENVS" value="true" />
++      <envs>
++        <env name="PYTHONUNBUFFERED" value="1" />
++      </envs>
++      <option name="SDK_HOME" value="" />
+       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+       <option name="IS_MODULE_SDK" value="false" />
+       <option name="ADD_CONTENT_ROOTS" value="true" />
+       <option name="ADD_SOURCE_ROOTS" value="true" />
+-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distributions.py" />
++      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distfit.py" />
+       <option name="PARAMETERS" value="" />
+       <option name="SHOW_COMMAND_LINE" value="false" />
+       <option name="EMULATE_TERMINAL" value="false" />
+@@ -88,7 +115,7 @@
+       <option name="INPUT_FILE" value="" />
+       <method v="2" />
+     </configuration>
+-    <configuration name="sampleLoad" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
++    <configuration name="dowhy_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+       <module name="CausalInference" />
+       <option name="INTERPRETER_OPTIONS" value="" />
+       <option name="PARENT_ENVS" value="true" />
+@@ -100,7 +127,7 @@
+       <option name="IS_MODULE_SDK" value="false" />
+       <option name="ADD_CONTENT_ROOTS" value="true" />
+       <option name="ADD_SOURCE_ROOTS" value="true" />
+-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/sampleLoad.py" />
++      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dowhy_test.py" />
+       <option name="PARAMETERS" value="" />
+       <option name="SHOW_COMMAND_LINE" value="false" />
+       <option name="EMULATE_TERMINAL" value="false" />
+@@ -132,10 +159,11 @@
+     </configuration>
+     <recent_temporary>
+       <list>
++        <item itemvalue="Python.GPyPackagee" />
++        <item itemvalue="Python.dowhy_test" />
++        <item itemvalue="Python.distfit" />
+         <item itemvalue="Python.Analysis" />
+         <item itemvalue="Python.structEqModel" />
+-        <item itemvalue="Python.sampleLoad" />
+-        <item itemvalue="Python.distributions" />
+       </list>
+     </recent_temporary>
+   </component>
+@@ -148,7 +176,70 @@
+       <option name="presentableId" value="Default" />
+       <updated>1650544993883</updated>
+     </task>
++    <task id="LOCAL-00001" summary="r data analysis">
++      <created>1650822243457</created>
++      <option name="number" value="00001" />
++      <option name="presentableId" value="LOCAL-00001" />
++      <option name="project" value="LOCAL" />
++      <updated>1650822243457</updated>
++    </task>
++    <task id="LOCAL-00002" summary="unversioned files">
++      <created>1650822263063</created>
++      <option name="number" value="00002" />
++      <option name="presentableId" value="LOCAL-00002" />
++      <option name="project" value="LOCAL" />
++      <updated>1650822263063</updated>
++    </task>
++    <task id="LOCAL-00003" summary="print information with intervention">
++      <created>1650822289658</created>
++      <option name="number" value="00003" />
++      <option name="presentableId" value="LOCAL-00003" />
++      <option name="project" value="LOCAL" />
++      <updated>1650822289658</updated>
++    </task>
++    <task id="LOCAL-00004" summary="new dataset with A = 1">
++      <created>1650822313588</created>
++      <option name="number" value="00004" />
++      <option name="presentableId" value="LOCAL-00004" />
++      <option name="project" value="LOCAL" />
++      <updated>1650822313588</updated>
++    </task>
++    <task id="LOCAL-00005" summary="structmodel updated">
++      <created>1650822346185</created>
++      <option name="number" value="00005" />
++      <option name="presentableId" value="LOCAL-00005" />
++      <option name="project" value="LOCAL" />
++      <updated>1650822346185</updated>
++    </task>
++    <task id="LOCAL-00006" summary="workspace files">
++      <created>1650822358991</created>
++      <option name="number" value="00006" />
++      <option name="presentableId" value="LOCAL-00006" />
++      <option name="project" value="LOCAL" />
++      <updated>1650822358991</updated>
++    </task>
++    <option name="localTasksCounter" value="7" />
+     <servers />
++  </component>
++  <component name="Vcs.Log.Tabs.Properties">
++    <option name="TAB_STATES">
++      <map>
++        <entry key="MAIN">
++          <value>
++            <State />
++          </value>
++        </entry>
++      </map>
++    </option>
++  </component>
++  <component name="VcsManagerConfiguration">
++    <MESSAGE value="r data analysis" />
++    <MESSAGE value="unversioned files" />
++    <MESSAGE value="print information with intervention" />
++    <MESSAGE value="new dataset with A = 1" />
++    <MESSAGE value="structmodel updated" />
++    <MESSAGE value="workspace files" />
++    <option name="LAST_COMMIT_MESSAGE" value="workspace files" />
+   </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+Index: dowhy_test.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/dowhy_test.py b/dowhy_test.py
+new file mode 100644
+--- /dev/null	(date 1650825186754)
++++ b/dowhy_test.py	(date 1650825186754)
+@@ -0,0 +1,69 @@
++
++
++# Required libraries
++import dowhy
++from dowhy import CausalModel
++import dowhy.datasets
++
++# Avoiding unnecessary log messges and warnings
++import logging
++logging.getLogger("dowhy").setLevel(logging.WARNING)
++import warnings
++from sklearn.exceptions import DataConversionWarning
++warnings.filterwarnings(action='ignore', category=DataConversionWarning)
++
++# Load some sample data
++data = dowhy.datasets.linear_dataset(
++    beta=10,
++    num_common_causes=5,
++    num_instruments=2,
++    num_samples=10000,
++    treatment_is_binary=True,
++    stddev_treatment_noise=10)
++
++# I. Create a causal model from the data and domain knowledge.
++model = CausalModel(
++    data=data["df"],
++    treatment=data["treatment_name"],
++    outcome=data["outcome_name"],
++    common_causes=data["common_causes_names"],
++    instruments=data["instrument_names"])
++
++model.view_model(layout="dot")
++from IPython.display import Image, display
++display(Image(filename="causal_model.png"))
++
++# III. Estimate the target estimand using a statistical method.
++propensity_strat_estimate = model.estimate_effect(identified_estimand,
++                                 method_name="backdoor.dowhy.propensity_score_stratification")
++
++print(propensity_strat_estimate)
++"""
++if __name__ == "__main__":
++    import numpy as np
++    import pandas as pd
++    import matplotlib.pyplot as plt
++    import math
++    import dowhy
++    from dowhy import CausalModel
++    import dowhy.datasets, dowhy.plotter
++
++    # Config dict to set the logging level
++    import logging.config
++
++    DEFAULT_LOGGING = {
++        'version': 1,
++        'disable_existing_loggers': False,
++        'loggers': {
++            '': {
++                'level': 'INFO',
++            },
++        }
++    }
++
++    logging.config.dictConfig(DEFAULT_LOGGING)
++
++    df = pd.read_csv('sample/data_569.csv', index_col = 0)
++
++    dowhy.plotter.plot_treatment_outcome(df["A"], df["B"],
++                                         df["C"])"""
+\ No newline at end of file
+Index: packageTests/skLearnGP.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packageTests/skLearnGP.py b/packageTests/skLearnGP.py
+new file mode 100644
+--- /dev/null	(date 1650826214371)
++++ b/packageTests/skLearnGP.py	(date 1650826214371)
+@@ -0,0 +1,16 @@
++from sklearn import gaussian_process
++from sklearn.gaussian_process.kernels import Matern, WhiteKernel, ConstantKernel
++
++kernel = ConstantKernel() + Matern(length_scale=2, nu=3/2) + WhiteKernel(noise_level=1)
++
++df = pd.read_csv('sample/data_569.csv', index_col = 0)
++x = df['A']
++X = x.reshape(-1, 1)
++print(X.shape)
++
++gp = gaussian_process.GaussianProcessRegressor(kernel=kernel)
++gp.fit(X, y)
++GaussianProcessRegressor(alpha=1e-10, copy_X_train=True,
++kernel=1**2 + Matern(length_scale=2, nu=1.5) + WhiteKernel(noise_level=1),
++n_restarts_optimizer=0, normalize_y=False,
++optimizer='fmin_l_bfgs_b', random_state=None)
+\ No newline at end of file
+Index: packageTests/GPyPackage.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packageTests/GPyPackage.py b/packageTests/GPyPackage.py
+new file mode 100644
+--- /dev/null	(date 1650825475624)
++++ b/packageTests/GPyPackage.py	(date 1650825475624)
+@@ -0,0 +1,17 @@
++from GPy import Model, Param
++import scipy
++class Rosen(Model):
++    def __init__(self, X, name='rosenbrock'):
++        super(Rosen, self).__init__(name=name)
++        self.X = Param("input", X)
++        self.add_parameter(self.X)
++
++    def log_likelihood(self):
++        return -scipy.optimize.rosen(self.X)
++
++    def parameters_changed(self):
++        self.X.gradient = -scipy.optimize.rosen_der(self.X)
++
++if __name__ == '__main__':
++    m = Rosen(np.array([-1, -1]))
++    print(m)
+\ No newline at end of file
+diff --git a/distfit.py b/distfit.py
+new file mode 100644
