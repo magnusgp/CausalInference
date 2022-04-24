@@ -89,7 +89,7 @@ df = pd.read_csv('sample/data_569.csv', index_col = 0)
 df2 = pd.read_csv('sample/data_C=1-57.csv', index_col = 0)
 df3 = pd.read_csv('sample/data_C=-1-57.csv', index_col = 0)
 
-#main(data_path = 'data_569')
+main(data_path = 'data_B=2', plot = True)
 
 diffInStats(df,df2,'A')
 
