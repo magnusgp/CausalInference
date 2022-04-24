@@ -35,6 +35,30 @@ def multiple_MI(df):
             out[i,j] = MI(df[cols[i]],df[cols[j]])
     return pd.DataFrame(out, columns=cols, index=cols)
 
+def diffInStats(df1,df2, col):
+    print()
+    print("Basic description of the data before and after an intervention")#on {col}".format(col=col))"
+    print("No intervention: ")
+    print("mean: {mean:.3f}".format(mean = df1[col].mean())
+          ,"std: {std:.3f}".format(std = df1[col].std())
+          ,"min: {min:.3f}".format(min = df1[col].min())
+          ,"max: {max:.3f}".format(max = df1[col].max()),
+          "median: {median:.3f}".format(median = df1[col].median()))
+
+    print("Intervention: ")
+    print("mean: {mean:.3f}".format(mean = df2[col].mean())
+              ,"std: {std:.3f}".format(std = df2[col].std())
+              ,"min: {min:.3f}".format(min = df2[col].min())
+              ,"max: {max:.3f}".format(max = df2[col].max()),
+              "median: {median:.3f}".format(median = df2[col].median()))
+
+    print("Difference: ")
+    print("mean: {mean:.3f}".format(mean = abs(df2[col].mean() - df1[col].mean())),
+          "std: {std:.3f}".format(std = abs(df2[col].std() - df1[col].std())),
+          "min: {min:.3f}".format(min = abs(df2[col].min() - df1[col].min())),
+          "max: {max:.3f}".format(max = abs(df2[col].max() - df1[col].max())),
+          "median: {median:.3f}".format(median = abs(df2[col].median() - df1[col].median())))
+
 def main(data_path,plot = False):
 
     df = pd.read_csv('sample/' + data_path + '.csv', index_col=0)
@@ -65,11 +89,12 @@ df = pd.read_csv('sample/data_569.csv', index_col = 0)
 df2 = pd.read_csv('sample/data_C=1-57.csv', index_col = 0)
 df3 = pd.read_csv('sample/data_C=-1-57.csv', index_col = 0)
 
-print('A min/max: ',min(df['A']),max(df['A']),"Mean: ", df['A'].mean(),"Std: ", df['A'].std())
-print('A min/max: ',min(df2['A']),max(df2['A']), df2['A'].mean(), df2['A'].std())
-print('A min/max: ',min(df3['A']),max(df3['A']), df3['A'].mean(), df3['A'].std())
+#main(data_path = 'data_569')
 
-main(data_path = 'data_569')
+diffInStats(df,df2,'A')
+
+
+
 
 #function to calculate mutual information
 
