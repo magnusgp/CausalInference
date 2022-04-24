@@ -36,7 +36,7 @@ class structEqModel():
     def plotSamples(self, samples, node='all', pd = False):
         if pd and node != 'all':
             plt.hist(samples[node], bins=20)
-            plt.show()misc
+            plt.show()
 
         else:
             all_nodes = ['A', 'B', 'C', 'D']
