@@ -4,8 +4,6 @@
     <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/KDE_Pairplot.png_data_569.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/KDE_Pairplot.png_data_569.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/KDE_Pairplot.png_data_C=-1-57.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/KDE_Pairplot.png_data_C=-1-57.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -103,6 +101,11 @@
           <url>file://$PROJECT_DIR$/distributions.py</url>
           <line>29</line>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Analysis.py</url>
+          <line>32</line>
+          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
