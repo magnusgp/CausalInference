@@ -1,4 +1,3 @@
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -37,7 +36,7 @@ def multiple_MI(df):
 
 def diffInStats(df1,df2, col):
     print()
-    print("Basic description of the data before and after an intervention")#on {col}".format(col=col))"
+    print("Basic description of the data in col {col} before and after an intervention".format(col=col))
     print("No intervention: ")
     print("mean: {mean:.3f}".format(mean = df1[col].mean())
           ,"std: {std:.3f}".format(std = df1[col].std())
@@ -83,19 +82,20 @@ def main(data_path,plot = False):
     print(multiple_MI(df))
 
 
-
-
 df = pd.read_csv('sample/data_569.csv', index_col = 0)
-df2 = pd.read_csv('sample/data_C=1-57.csv', index_col = 0)
-df3 = pd.read_csv('sample/data_C=-1-57.csv', index_col = 0)
+df2 = pd.read_csv('sample/data_B=2.csv', index_col = 0)
 
-main(data_path = 'data_B=2', plot = True)
-
-diffInStats(df,df2,'A')
+main(data_path = 'data_A=2', plot = True)
 
 
+plt.figure()
+plt.subplot(1,2,1)
+sns.histplot(df['D'],bins = 20,color = 'blue')
+plt.subplot(1,2,2)
+sns.histplot(df2['D'],bins = 20,color = 'red')
+plt.show()
 
 
-#function to calculate mutual information
+
 
 
