@@ -6,8 +6,13 @@ import scipy.stats as stats
 
 data1 = pd.read_csv("sample/data_279.csv", index_col=0)
 data2 = pd.read_csv("sample/data_299_A=1.3.csv", index_col=0)
-data3 = pd.read_csv("sample/data_300_c=0.csv", index_col=0)
-
+data3 = pd.read_csv("sample/data_302_c=0.csv", index_col=0)
+data4 = pd.read_csv("sample/data_303_E=2.csv", index_col=0)
+data5 = pd.read_csv("sample/data_305_F=pi_2.csv", index_col=0)
+data6 = pd.read_csv("sample/data_308_D=-2.csv", index_col=0)
+data7 = pd.read_csv("sample/data_312_B=2.csv", index_col=0)
+data8 = pd.read_csv("sample/data_314_C=2.csv", index_col=0)
+data9 = pd.read_csv("sample/data_315_A=-2.csv", index_col=0)
 
 # Function to plot histograms for each column
 def plot_hist(data, cols):
@@ -143,20 +148,12 @@ def t_test(data1, data2, cols):
     # Perform t-test
     t, p = stats.ttest_ind(data1[cols[0]], data2[cols[0]])
     # Print results
-    print("t-statistic: %f" % t)
     print("p-value: %f" % p)
-    # Create a bar plot of the p-values
-    plt.figure()
-    plt.bar([0, 1], [p, 1-p])
-    plt.xticks([0, 1], ['p-value', '1-p-value'])
-    plt.show()
 
 if __name__ == "__main__":
-    # data['B'] = 1
-    data = pd.read_csv("sample/data_299.csv", index_col=0)
-    #plot_pairwise(data, data.columns, kind = "scatter")
-    # plot_corr(data)q
-    #plot_boxes(data["A"], data["B"], data.columns)
-    # Do a statistical t-test between two columns
-    t_test(data1, data3, cols=["A"])
+    plot_pairwise(data5, data1.columns, kind = "scatter")
 
+    # for col in data6.columns:
+    #     print(col)
+    #     t_test(data1, data6, col)
+    #     print("")
