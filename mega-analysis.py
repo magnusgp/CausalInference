@@ -2,9 +2,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import numpy as np
+# import scipy stats
+import scipy.stats as stats
 
-
-data = pd.read_csv("sample/data_279.csv", index_col=0)
+data2 = pd.read_csv("sample/data_299.csv", index_col=0)
+data1 = pd.read_csv("sample/data_279.csv", index_col=0)
 
 # print("Columns:")
 # print(data.columns)
@@ -90,9 +92,9 @@ def multiple_MI(df):
 def plot_hist_2(data1, data2, cols):
     plt.figure()
     plt.subplot(1, 2, 1)
-    sns.histplot(df[cols], bins=20, color='blue')
+    sns.histplot(data1[cols], bins=20, color='blue')
     plt.subplot(1, 2, 2)
-    sns.histplot(df2[cols], bins=20, color='red')
+    sns.histplot(data2[cols], bins=20, color='red')
     plt.show()
 
 
@@ -129,7 +131,14 @@ def plot_pairwise(data, cols, kind = "scatter"):
     sns.pairplot(data, vars=cols, size=3, aspect=1.5, kind=kind)
     plt.show()
 
+# Function to compute t-test for 2 columns in 2 dataframes
+def t_test(data1, data2, cols):
+    # Compute the t-test
+    t, p = stats.ttest_ind(data1[cols], data2[cols])
+    # Print results
+    print("t = {:.3f}, p = {:.3f}".format(t, p))
+
 if __name__ == "__main__":
-    plot_pairwise(data, data.columns, kind = "scatter")
+    anova(data1, data2, cols="B")
     # plot_corr(data)
 
