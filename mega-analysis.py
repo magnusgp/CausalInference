@@ -86,6 +86,16 @@ def multiple_MI(df):
             out[i,j] = MI(df[cols[i]],df[cols[j]])
     return pd.DataFrame(out, columns=cols, index=cols)
 
+#plot histogram of same column in two different dataframes
+def plot_hist_2(data1, data2, cols):
+    plt.figure()
+    plt.subplot(1, 2, 1)
+    sns.histplot(df[cols], bins=20, color='blue')
+    plt.subplot(1, 2, 2)
+    sns.histplot(df2[cols], bins=20, color='red')
+    plt.show()
+
+
 # Function to plot scatter plots for each column
 def plot_scatter(data, cols):
     # Apply seaborn style
