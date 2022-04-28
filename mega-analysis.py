@@ -2,11 +2,16 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import numpy as np
+<<<<<<< HEAD
 # import scipy stats
 import scipy.stats as stats
 
 data2 = pd.read_csv("sample/data_299.csv", index_col=0)
 data1 = pd.read_csv("sample/data_279.csv", index_col=0)
+=======
+# Import stats package
+import scipy.stats as stats
+>>>>>>> fec748515f3114de271052247fa04281dbff46ef
 
 # print("Columns:")
 # print(data.columns)
@@ -131,14 +136,39 @@ def plot_pairwise(data, cols, kind = "scatter"):
     sns.pairplot(data, vars=cols, size=3, aspect=1.5, kind=kind)
     plt.show()
 
-# Function to compute t-test for 2 columns in 2 dataframes
-def t_test(data1, data2, cols):
-    # Compute the t-test
-    t, p = stats.ttest_ind(data1[cols], data2[cols])
-    # Print results
-    print("t = {:.3f}, p = {:.3f}".format(t, p))
+def plot_boxes(data1, data2):
+    # Apply seaborn style
+    plt.style.use("seaborn")
+    # Create scatter plots for relation between two columns
+    plt.subplot(1, 2, 1)
+    plt.plot(data1, '.')
+    plt.title("A")
+    plt.subplot(1, 2, 2)
+    plt.plot(data2, '.')
+    plt.title("B")
+    plt.show()
+
+def ttest(data1, data2):
+    # Function to do a statistical t test on two dataframes
+    # Get the columns
+    cols = data1.columns
+    # Create a dataframe to store the results
+    out = pd.DataFrame(index=cols, columns=["t", "p"])
+    # Loop through the columns
+    for i in range(len(cols)):
+        # Perform a t test
+        t, p = stats.ttest_ind(data1[cols[i]], data2[cols[i]])
+        # Store the results
+        out.loc[cols[i], "t"] = t
+        out.loc[cols[i], "p"] = p
+    return out
 
 if __name__ == "__main__":
-    anova(data1, data2, cols="B")
-    # plot_corr(data)
+    # data['B'] = 1
+    data = pd.read_csv("sample/data_299.csv", index_col=0)
+    #plot_pairwise(data, data.columns, kind = "scatter")
+    # plot_corr(data)q
+    #plot_boxes(data["A"], data["B"], data.columns)
+    # Do a statistical t-test between two columns
+    ttest(data["A"], data["B"])
 
