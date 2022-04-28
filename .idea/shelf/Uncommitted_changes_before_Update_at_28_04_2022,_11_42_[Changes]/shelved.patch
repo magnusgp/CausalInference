@@ -1,0 +1,312 @@
+Index: mega-analysis.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\nimport numpy as np\n<<<<<<< HEAD\n# import scipy stats\nimport scipy.stats as stats\n\ndata2 = pd.read_csv(\"sample/data_299.csv\", index_col=0)\ndata1 = pd.read_csv(\"sample/data_279.csv\", index_col=0)\n=======\n# Import stats package\nimport scipy.stats as stats\n>>>>>>> fec748515f3114de271052247fa04281dbff46ef\n\n# print(\"Columns:\")\n# print(data.columns)\n# print(\"\\n\")\n# print(data.head())\n\n# Function to plot histograms for each column\ndef plot_hist(data, cols):\n    # Apply seaborn style\n    plt.style.use(\"seaborn\")\n    fig, axes = plt.subplots(2, 3, figsize=(10, 10))\n    plt.subplot(2, 3, 1)\n    data.loc[:, cols[0]].hist(ax=axes[0, 0])\n    plt.legend([cols[0]])\n    plt.subplot(2, 3, 2)\n    data.loc[:, cols[1]].hist(ax=axes[0, 1])\n    plt.legend([cols[1]])\n    plt.subplot(2, 3, 3)\n    data.loc[:, cols[2]].hist(ax=axes[0, 2])\n    plt.legend([cols[2]])\n    plt.subplot(2, 3, 4)\n    data.loc[:, cols[3]].hist(ax=axes[1, 0])\n    plt.legend([cols[3]])\n    plt.subplot(2, 3, 5)\n    data.loc[:, cols[4]].hist(ax=axes[1, 1])\n    plt.legend([cols[4]])\n    plt.subplot(2, 3, 6)\n    data.loc[:, cols[5]].hist(ax=axes[1, 2])\n    plt.legend([cols[5]])\n    plt.show()\n\n# plot correlation matrix\ndef plot_corr(data):\n    # Apply seaborn style\n    plt.style.use(\"seaborn\")\n    # Create a correlation matrix\n    corr = data.corr()\n    # Generate a mask for the upper triangle\n    mask = np.zeros_like(corr, dtype=np.bool)\n    mask[np.triu_indices_from(mask)] = True\n    # Set up the matplotlib figure\n    f, ax = plt.subplots(figsize=(11, 9))\n    # Generate a custom diverging colormap\n    cmap = sns.diverging_palette(220, 10, as_cmap=True)\n    # Draw the heatmap with the mask and correct aspect ratio\n    sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,\n                square=True, linewidths=.5, cbar_kws={\"shrink\": .5})\n    plt.show()\n\n# Mutual Information\ndef MI(x,y,Nbins = 21, plot = False):\n    bins = np.linspace(min(x),max(x),Nbins)\n    eps = np.spacing(1)\n    x_marginal = np.histogram(x,bins)[0]\n    y_marginal = np.histogram(y,bins)[0]\n    x_marginal = x_marginal/x_marginal.sum()\n    y_marginal = y_marginal/y_marginal.sum()\n    xy_joint = np.histogram2d(x,y,bins = (bins,bins))[0]\n    xy_joint = xy_joint/xy_joint.sum()\n    MI = np.sum(xy_joint * np.log(xy_joint / (x_marginal[:, None] * y_marginal[None, :] + eps) + eps))\n    if plot:\n        plt.figure()\n        plt.subplot(1,2,1)\n        plt.imshow(xy_joint,origin = 'lower')\n        plt.title('Joint Distribution')\n        plt.subplot(1,2,2)\n        plt.imshow((x_marginal[:,None]*y_marginal[None,:]).T,origin = 'lower')\n        plt.title('Product of marginals')\n        plt.suptitle('Mutual Information: '+str(MI))\n        plt.show()\n    return MI\n\n# mutual information Multiple\ndef multiple_MI(df):\n    cols = df.columns\n    out = np.zeros((len(cols),len(cols)))\n    for i in range(len(cols)):\n        for j in range(len(cols)):\n            out[i,j] = MI(df[cols[i]],df[cols[j]])\n    return pd.DataFrame(out, columns=cols, index=cols)\n\n#plot histogram of same column in two different dataframes\ndef plot_hist_2(data1, data2, cols):\n    plt.figure()\n    plt.subplot(1, 2, 1)\n    sns.histplot(data1[cols], bins=20, color='blue')\n    plt.subplot(1, 2, 2)\n    sns.histplot(data2[cols], bins=20, color='red')\n    plt.show()\n\n\n# Function to plot scatter plots for each column\ndef plot_scatter(data, cols):\n    # Apply seaborn style\n    plt.style.use(\"seaborn\")\n    fig, axes = plt.subplots(2, 3, figsize=(10, 10))\n    plt.subplot(2, 3, 1)\n    plt.plot(data[\"A\"], '.')\n    plt.legend([cols[0]])\n    plt.subplot(2, 3, 2)\n    plt.plot(data[\"B\"], '.')\n    plt.legend([cols[1]])\n    plt.subplot(2, 3, 3)\n    plt.plot(data[\"C\"], '.')\n    plt.legend([cols[2]])\n    plt.subplot(2, 3, 4)\n    plt.plot(data[\"D\"], '.')\n    plt.legend([cols[3]])\n    plt.subplot(2, 3, 5)\n    plt.plot(data[\"E\"], '.')\n    plt.legend([cols[4]])\n    plt.subplot(2, 3, 6)\n    plt.plot(data[\"F\"], '.')\n    plt.legend([cols[5]])\n    plt.show()\n\n# Plot pairwise scatter plots using sns\ndef plot_pairwise(data, cols, kind = \"scatter\"):\n    # Apply seaborn style\n    plt.style.use(\"seaborn\")\n    # Create a scatter plot of the pairwise relationships\n    sns.pairplot(data, vars=cols, size=3, aspect=1.5, kind=kind)\n    plt.show()\n\ndef plot_boxes(data1, data2):\n    # Apply seaborn style\n    plt.style.use(\"seaborn\")\n    # Create scatter plots for relation between two columns\n    plt.subplot(1, 2, 1)\n    plt.plot(data1, '.')\n    plt.title(\"A\")\n    plt.subplot(1, 2, 2)\n    plt.plot(data2, '.')\n    plt.title(\"B\")\n    plt.show()\n\ndef ttest(data1, data2):\n    # Function to do a statistical t test on two dataframes\n    # Get the columns\n    cols = data1.columns\n    # Create a dataframe to store the results\n    out = pd.DataFrame(index=cols, columns=[\"t\", \"p\"])\n    # Loop through the columns\n    for i in range(len(cols)):\n        # Perform a t test\n        t, p = stats.ttest_ind(data1[cols[i]], data2[cols[i]])\n        # Store the results\n        out.loc[cols[i], \"t\"] = t\n        out.loc[cols[i], \"p\"] = p\n    return out\n\nif __name__ == \"__main__\":\n    # data['B'] = 1\n    data = pd.read_csv(\"sample/data_299.csv\", index_col=0)\n    #plot_pairwise(data, data.columns, kind = \"scatter\")\n    # plot_corr(data)q\n    #plot_boxes(data[\"A\"], data[\"B\"], data.columns)\n    # Do a statistical t-test between two columns\n    ttest(data[\"A\"], data[\"B\"])\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/mega-analysis.py b/mega-analysis.py
+--- a/mega-analysis.py	(revision ce255ad534c0e209e00b4c7c925f51dea820db71)
++++ b/mega-analysis.py	(date 1651138681839)
+@@ -2,16 +2,12 @@
+ import pandas as pd
+ import seaborn as sns
+ import numpy as np
+-<<<<<<< HEAD
+ # import scipy stats
+-import scipy.stats as stats
+ 
+ data2 = pd.read_csv("sample/data_299.csv", index_col=0)
+ data1 = pd.read_csv("sample/data_279.csv", index_col=0)
+-=======
+ # Import stats package
+ import scipy.stats as stats
+->>>>>>> fec748515f3114de271052247fa04281dbff46ef
+ 
+ # print("Columns:")
+ # print(data.columns)
+@@ -148,19 +144,19 @@
+     plt.title("B")
+     plt.show()
+ 
+-def ttest(data1, data2):
++def ttest(data1, data2, cols):
+     # Function to do a statistical t test on two dataframes
+     # Get the columns
+-    cols = data1.columns
++    data1 = pd.DataFrame(data1)
++    data2 = pd.DataFrame(data2)
+     # Create a dataframe to store the results
+     out = pd.DataFrame(index=cols, columns=["t", "p"])
+     # Loop through the columns
+-    for i in range(len(cols)):
+-        # Perform a t test
+-        t, p = stats.ttest_ind(data1[cols[i]], data2[cols[i]])
+-        # Store the results
+-        out.loc[cols[i], "t"] = t
+-        out.loc[cols[i], "p"] = p
++    # Perform a t test
++    t, p = stats.ttest_ind(data1[cols], data2[cols])
++    # Store the results
++    out.loc[cols, "t"] = t
++    out.loc[cols, "p"] = p
+     return out
+ 
+ if __name__ == "__main__":
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\">\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/Analysis.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Analysis.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/mega-analysis.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/mega-analysis.py\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitSEFilterConfiguration\">\n    <file-type-list>\n      <filtered-out-file-type name=\"LOCAL_BRANCH\" />\n      <filtered-out-file-type name=\"REMOTE_BRANCH\" />\n      <filtered-out-file-type name=\"TAG\" />\n      <filtered-out-file-type name=\"COMMIT_BY_MESSAGE\" />\n    </file-type-list>\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"286lc3q2Pdeol8JWLyDnUL8E3Jb\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"RunManager\" selected=\"Python.Analysis\">\n    <configuration name=\"Analysis\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/Analysis.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"distributions\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"Project3\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/distributions.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"sampleLoad\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/sampleLoad.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"structEqModel\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/structEqModel.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"Python.Analysis\" />\n        <item itemvalue=\"Python.structEqModel\" />\n        <item itemvalue=\"Python.sampleLoad\" />\n        <item itemvalue=\"Python.distributions\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\" />\n      <created>1650544993883</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1650544993883</updated>\n    </task>\n    <servers />\n  </component>\n  <component name=\"XDebuggerManager\">\n    <breakpoint-manager>\n      <breakpoints>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\n          <url>file://$PROJECT_DIR$/distributions.py</url>\n          <line>29</line>\n          <option name=\"timeStamp\" value=\"1\" />\n        </line-breakpoint>\n      </breakpoints>\n    </breakpoint-manager>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision ce255ad534c0e209e00b4c7c925f51dea820db71)
++++ b/.idea/workspace.xml	(date 1651138588929)
+@@ -1,9 +1,15 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="AutoImportSettings">
++    <option name="autoReloadType" value="SELECTIVE" />
++  </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="">
++    <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="added ttest function">
++      <change afterPath="$PROJECT_DIR$/.idea/csv-plugin.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/drawGraph.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/CausalInference.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/CausalInference.iml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/Analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analysis.py" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/mega-analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/mega-analysis.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+@@ -40,7 +46,16 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="RunManager" selected="Python.Analysis">
++  <component name="PropertiesComponent">
++    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
++    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
++  </component>
++  <component name="RecentsManager">
++    <key name="MoveFile.RECENT_KEYS">
++      <recent name="$PROJECT_DIR$/sample_test" />
++    </key>
++  </component>
++  <component name="RunManager" selected="Python.mega-analysis">
+     <configuration name="Analysis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+       <module name="CausalInference" />
+       <option name="INTERPRETER_OPTIONS" value="" />
+@@ -62,19 +77,40 @@
+       <option name="INPUT_FILE" value="" />
+       <method v="2" />
+     </configuration>
+-    <configuration name="distributions" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+-      <module name="Project3" />
++    <configuration name="drawGraph" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
++      <module name="CausalInference" />
+       <option name="INTERPRETER_OPTIONS" value="" />
+       <option name="PARENT_ENVS" value="true" />
+       <envs>
+         <env name="PYTHONUNBUFFERED" value="1" />
+       </envs>
+-      <option name="SDK_HOME" value="/usr/local/bin/python3.8" />
++      <option name="SDK_HOME" value="" />
++      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
++      <option name="IS_MODULE_SDK" value="true" />
++      <option name="ADD_CONTENT_ROOTS" value="true" />
++      <option name="ADD_SOURCE_ROOTS" value="true" />
++      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/drawGraph.py" />
++      <option name="PARAMETERS" value="" />
++      <option name="SHOW_COMMAND_LINE" value="false" />
++      <option name="EMULATE_TERMINAL" value="false" />
++      <option name="MODULE_MODE" value="false" />
++      <option name="REDIRECT_INPUT" value="false" />
++      <option name="INPUT_FILE" value="" />
++      <method v="2" />
++    </configuration>
++    <configuration name="mega-analysis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
++      <module name="CausalInference" />
++      <option name="INTERPRETER_OPTIONS" value="" />
++      <option name="PARENT_ENVS" value="true" />
++      <envs>
++        <env name="PYTHONUNBUFFERED" value="1" />
++      </envs>
++      <option name="SDK_HOME" value="" />
+       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+-      <option name="IS_MODULE_SDK" value="false" />
++      <option name="IS_MODULE_SDK" value="true" />
+       <option name="ADD_CONTENT_ROOTS" value="true" />
+       <option name="ADD_SOURCE_ROOTS" value="true" />
+-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distributions.py" />
++      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mega-analysis.py" />
+       <option name="PARAMETERS" value="" />
+       <option name="SHOW_COMMAND_LINE" value="false" />
+       <option name="EMULATE_TERMINAL" value="false" />
+@@ -127,10 +163,11 @@
+     </configuration>
+     <recent_temporary>
+       <list>
++        <item itemvalue="Python.mega-analysis" />
++        <item itemvalue="Python.drawGraph" />
+         <item itemvalue="Python.Analysis" />
+         <item itemvalue="Python.structEqModel" />
+         <item itemvalue="Python.sampleLoad" />
+-        <item itemvalue="Python.distributions" />
+       </list>
+     </recent_temporary>
+   </component>
+@@ -143,17 +180,37 @@
+       <option name="presentableId" value="Default" />
+       <updated>1650544993883</updated>
+     </task>
++    <task id="LOCAL-00001" summary="refactoring">
++      <created>1651134794317</created>
++      <option name="number" value="00001" />
++      <option name="presentableId" value="LOCAL-00001" />
++      <option name="project" value="LOCAL" />
++      <updated>1651134794317</updated>
++    </task>
++    <task id="LOCAL-00002" summary="added ttest function">
++      <created>1651138114222</created>
++      <option name="number" value="00002" />
++      <option name="presentableId" value="LOCAL-00002" />
++      <option name="project" value="LOCAL" />
++      <updated>1651138114222</updated>
++    </task>
++    <option name="localTasksCounter" value="3" />
+     <servers />
+   </component>
+-  <component name="XDebuggerManager">
+-    <breakpoint-manager>
+-      <breakpoints>
+-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+-          <url>file://$PROJECT_DIR$/distributions.py</url>
+-          <line>29</line>
+-          <option name="timeStamp" value="1" />
+-        </line-breakpoint>
+-      </breakpoints>
+-    </breakpoint-manager>
++  <component name="Vcs.Log.Tabs.Properties">
++    <option name="TAB_STATES">
++      <map>
++        <entry key="MAIN">
++          <value>
++            <State />
++          </value>
++        </entry>
++      </map>
++    </option>
++  </component>
++  <component name="VcsManagerConfiguration">
++    <MESSAGE value="refactoring" />
++    <MESSAGE value="added ttest function" />
++    <option name="LAST_COMMIT_MESSAGE" value="added ttest function" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: .idea/csv-plugin.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/csv-plugin.xml b/.idea/csv-plugin.xml
+new file mode 100644
+--- /dev/null	(date 1651138572779)
++++ b/.idea/csv-plugin.xml	(date 1651138572779)
+@@ -0,0 +1,16 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="CsvFileAttributes">
++    <option name="attributeMap">
++      <map>
++        <entry key="/sample/data_A=2.csv">
++          <value>
++            <Attribute>
++              <option name="separator" value="," />
++            </Attribute>
++          </value>
++        </entry>
++      </map>
++    </option>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ProjectRootManager\" version=\"2\" project-jdk-name=\"Python 3.8\" project-jdk-type=\"Python SDK\" />\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision ce255ad534c0e209e00b4c7c925f51dea820db71)
++++ b/.idea/misc.xml	(date 1651138572802)
+@@ -1,4 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8" project-jdk-type="Python SDK" />
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8 (2)" project-jdk-type="Python SDK" />
+ </project>
+\ No newline at end of file
+Index: .idea/CausalInference.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<module type=\"PYTHON_MODULE\" version=\"4\">\n  <component name=\"NewModuleRootManager\">\n    <content url=\"file://$MODULE_DIR$\" />\n    <orderEntry type=\"inheritedJdk\" />\n    <orderEntry type=\"sourceFolder\" forTests=\"false\" />\n  </component>\n</module>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/CausalInference.iml b/.idea/CausalInference.iml
+--- a/.idea/CausalInference.iml	(revision ce255ad534c0e209e00b4c7c925f51dea820db71)
++++ b/.idea/CausalInference.iml	(date 1651138572807)
+@@ -2,7 +2,7 @@
+ <module type="PYTHON_MODULE" version="4">
+   <component name="NewModuleRootManager">
+     <content url="file://$MODULE_DIR$" />
+-    <orderEntry type="inheritedJdk" />
++    <orderEntry type="jdk" jdkName="Python 3.8 (2)" jdkType="Python SDK" />
+     <orderEntry type="sourceFolder" forTests="false" />
+   </component>
+ </module>
+\ No newline at end of file
+Index: drawGraph.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/drawGraph.py b/drawGraph.py
+new file mode 100644
+--- /dev/null	(date 1651138572788)
++++ b/drawGraph.py	(date 1651138572788)
+@@ -0,0 +1,28 @@
++import networkx as nx
++import matplotlib.pyplot as plt
++
++G = nx.DiGraph()
++G.add_edges_from(
++    [('A', 'C'), ('C', 'B'), ('C', 'E')])
++
++#val_map = {'A': 1.0,
++#           'D': 0.5714285714285714,
++#           'H': 0.0}
++
++#values = [val_map.get(node, 0.25) for node in G.nodes()]
++
++# Specify the edges you want here
++red_edges = []
++#edge_colours = ['black' if not edge in red_edges else 'red'
++#               for edge in G.edges()]
++black_edges = [edge for edge in G.edges() if edge not in red_edges]
++
++# Need to create a layout when doing
++# separate calls to draw nodes and edges
++pos = nx.spring_layout(G)
++nx.draw_networkx_nodes(G, pos, cmap=plt.get_cmap('jet'),
++                       node_color = 'white', node_size = 500)
++nx.draw_networkx_labels(G, pos)
++#nx.draw_networkx_edges(G, pos, edgelist=red_edges, edge_color='r', arrows=True)
++nx.draw_networkx_edges(G, pos, edgelist=black_edges, arrows=True)
++plt.show()
+\ No newline at end of file
