@@ -2,21 +2,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import numpy as np
-<<<<<<< HEAD
-# import scipy stats
 import scipy.stats as stats
 
-data2 = pd.read_csv("sample/data_299.csv", index_col=0)
 data1 = pd.read_csv("sample/data_279.csv", index_col=0)
-=======
-# Import stats package
-import scipy.stats as stats
->>>>>>> fec748515f3114de271052247fa04281dbff46ef
+data2 = pd.read_csv("sample/data_299_A=1.3.csv", index_col=0)
+data3 = pd.read_csv("sample/data_300_c=0.csv", index_col=0)
 
-# print("Columns:")
-# print(data.columns)
-# print("\n")
-# print(data.head())
 
 # Function to plot histograms for each column
 def plot_hist(data, cols):
@@ -102,7 +93,6 @@ def plot_hist_2(data1, data2, cols):
     sns.histplot(data2[cols], bins=20, color='red')
     plt.show()
 
-
 # Function to plot scatter plots for each column
 def plot_scatter(data, cols):
     # Apply seaborn style
@@ -148,20 +138,18 @@ def plot_boxes(data1, data2):
     plt.title("B")
     plt.show()
 
-def ttest(data1, data2):
-    # Function to do a statistical t test on two dataframes
-    # Get the columns
-    cols = data1.columns
-    # Create a dataframe to store the results
-    out = pd.DataFrame(index=cols, columns=["t", "p"])
-    # Loop through the columns
-    for i in range(len(cols)):
-        # Perform a t test
-        t, p = stats.ttest_ind(data1[cols[i]], data2[cols[i]])
-        # Store the results
-        out.loc[cols[i], "t"] = t
-        out.loc[cols[i], "p"] = p
-    return out
+# Function to compute t-test for 2 columns in 2 dataframes
+def t_test(data1, data2, cols):
+    # Perform t-test
+    t, p = stats.ttest_ind(data1[cols[0]], data2[cols[0]])
+    # Print results
+    print("t-statistic: %f" % t)
+    print("p-value: %f" % p)
+    # Create a bar plot of the p-values
+    plt.figure()
+    plt.bar([0, 1], [p, 1-p])
+    plt.xticks([0, 1], ['p-value', '1-p-value'])
+    plt.show()
 
 if __name__ == "__main__":
     # data['B'] = 1
@@ -170,5 +158,5 @@ if __name__ == "__main__":
     # plot_corr(data)q
     #plot_boxes(data["A"], data["B"], data.columns)
     # Do a statistical t-test between two columns
-    ttest(data["A"], data["B"])
+    t_test(data1, data3, cols=["A"])
 
