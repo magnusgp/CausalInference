@@ -4,6 +4,8 @@ import seaborn as sns
 import numpy as np
 import scipy.stats as stats
 
+data_old = pd.read_csv("sample/data_279-old.csv", index_col=0)
+data = pd.read_csv("sample/data_300.csv", index_col=0)
 data1 = pd.read_csv("sample/data_279.csv", index_col=0)
 data2 = pd.read_csv("sample/data_299_A=1.3.csv", index_col=0)
 data3 = pd.read_csv("sample/data_302_c=0.csv", index_col=0)
@@ -13,6 +15,14 @@ data6 = pd.read_csv("sample/data_308_D=-2.csv", index_col=0)
 data7 = pd.read_csv("sample/data_312_B=2.csv", index_col=0)
 data8 = pd.read_csv("sample/data_314_C=2.csv", index_col=0)
 data9 = pd.read_csv("sample/data_315_A=-2.csv", index_col=0)
+data10 = pd.read_csv("sample/data_342_C=-2,F=0.csv", index_col=0)
+data11 = pd.read_csv("sample/data_344_F=0.csv", index_col=0)
+data12 = pd.read_csv("sample/data_353_A=0.csv", index_col=0)
+data13 = pd.read_csv("sample/data_362.csv", index_col=0)
+data14 = pd.read_csv("sample/data_383_D=0.csv", index_col=0)
+
+# Combine data_old, data and data13
+data_comb = pd.concat([data_old, data, data13], axis=0, ignore_index=True)
 
 # Function to plot histograms for each column
 def plot_hist(data, cols):
@@ -93,9 +103,9 @@ def multiple_MI(df):
 def plot_hist_2(data1, data2, cols):
     plt.figure()
     plt.subplot(1, 2, 1)
-    sns.histplot(data1[cols], bins=20, color='blue')
+    sns.histplot(data1[cols].round(2), bins=30, color='blue')
     plt.subplot(1, 2, 2)
-    sns.histplot(data2[cols], bins=20, color='red')
+    sns.histplot(data2[cols].round(2), bins=30, color='red')
     plt.show()
 
 # Function to plot scatter plots for each column
@@ -151,9 +161,14 @@ def t_test(data1, data2, cols):
     print("p-value: %f" % p)
 
 if __name__ == "__main__":
-    plot_pairwise(data5, data1.columns, kind = "scatter")
+    # plot_pairwise(data_comb, data1.columns, kind = "scatter")
+    # D = 0 (Intervention)
+    # C har ingen noise
+    # E = 0
+    # Sker ikke noget med F og A
 
-    # for col in data6.columns:
-    #     print(col)
-    #     t_test(data1, data6, col)
-    #     print("")
+    plot_hist_2(data1, data14, "C")
+    plot_hist_2(data1, data14, "E")
+
+
+
