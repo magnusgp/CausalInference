@@ -1,0 +1,872 @@
+Index: mega-analysis.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\nimport numpy as np\nimport scipy.stats as stats\n\ndata1 = pd.read_csv(\"sample/data_279.csv\", index_col=0)\ndata2 = pd.read_csv(\"sample/data_299_A=1.3.csv\", index_col=0)\ndata3 = pd.read_csv(\"sample/data_300_c=0.csv\", index_col=0)\n\n\n# Function to plot histograms for each column\ndef plot_hist(data, cols):\n    # Apply seaborn style\n    plt.style.use(\"seaborn\")\n    fig, axes = plt.subplots(2, 3, figsize=(10, 10))\n    plt.subplot(2, 3, 1)\n    data.loc[:, cols[0]].hist(ax=axes[0, 0])\n    plt.legend([cols[0]])\n    plt.subplot(2, 3, 2)\n    data.loc[:, cols[1]].hist(ax=axes[0, 1])\n    plt.legend([cols[1]])\n    plt.subplot(2, 3, 3)\n    data.loc[:, cols[2]].hist(ax=axes[0, 2])\n    plt.legend([cols[2]])\n    plt.subplot(2, 3, 4)\n    data.loc[:, cols[3]].hist(ax=axes[1, 0])\n    plt.legend([cols[3]])\n    plt.subplot(2, 3, 5)\n    data.loc[:, cols[4]].hist(ax=axes[1, 1])\n    plt.legend([cols[4]])\n    plt.subplot(2, 3, 6)\n    data.loc[:, cols[5]].hist(ax=axes[1, 2])\n    plt.legend([cols[5]])\n    plt.show()\n\n# plot correlation matrix\ndef plot_corr(data):\n    # Apply seaborn style\n    plt.style.use(\"seaborn\")\n    # Create a correlation matrix\n    corr = data.corr()\n    # Generate a mask for the upper triangle\n    mask = np.zeros_like(corr, dtype=np.bool)\n    mask[np.triu_indices_from(mask)] = True\n    # Set up the matplotlib figure\n    f, ax = plt.subplots(figsize=(11, 9))\n    # Generate a custom diverging colormap\n    cmap = sns.diverging_palette(220, 10, as_cmap=True)\n    # Draw the heatmap with the mask and correct aspect ratio\n    sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,\n                square=True, linewidths=.5, cbar_kws={\"shrink\": .5})\n    plt.show()\n\n# Mutual Information\ndef MI(x,y,Nbins = 21, plot = False):\n    bins = np.linspace(min(x),max(x),Nbins)\n    eps = np.spacing(1)\n    x_marginal = np.histogram(x,bins)[0]\n    y_marginal = np.histogram(y,bins)[0]\n    x_marginal = x_marginal/x_marginal.sum()\n    y_marginal = y_marginal/y_marginal.sum()\n    xy_joint = np.histogram2d(x,y,bins = (bins,bins))[0]\n    xy_joint = xy_joint/xy_joint.sum()\n    MI = np.sum(xy_joint * np.log(xy_joint / (x_marginal[:, None] * y_marginal[None, :] + eps) + eps))\n    if plot:\n        plt.figure()\n        plt.subplot(1,2,1)\n        plt.imshow(xy_joint,origin = 'lower')\n        plt.title('Joint Distribution')\n        plt.subplot(1,2,2)\n        plt.imshow((x_marginal[:,None]*y_marginal[None,:]).T,origin = 'lower')\n        plt.title('Product of marginals')\n        plt.suptitle('Mutual Information: '+str(MI))\n        plt.show()\n    return MI\n\n# mutual information Multiple\ndef multiple_MI(df):\n    cols = df.columns\n    out = np.zeros((len(cols),len(cols)))\n    for i in range(len(cols)):\n        for j in range(len(cols)):\n            out[i,j] = MI(df[cols[i]],df[cols[j]])\n    return pd.DataFrame(out, columns=cols, index=cols)\n\n#plot histogram of same column in two different dataframes\ndef plot_hist_2(data1, data2, cols):\n    plt.figure()\n    plt.subplot(1, 2, 1)\n    sns.histplot(data1[cols], bins=20, color='blue')\n    plt.subplot(1, 2, 2)\n    sns.histplot(data2[cols], bins=20, color='red')\n    plt.show()\n\n# Function to plot scatter plots for each column\ndef plot_scatter(data, cols):\n    # Apply seaborn style\n    plt.style.use(\"seaborn\")\n    fig, axes = plt.subplots(2, 3, figsize=(10, 10))\n    plt.subplot(2, 3, 1)\n    plt.plot(data[\"A\"], '.')\n    plt.legend([cols[0]])\n    plt.subplot(2, 3, 2)\n    plt.plot(data[\"B\"], '.')\n    plt.legend([cols[1]])\n    plt.subplot(2, 3, 3)\n    plt.plot(data[\"C\"], '.')\n    plt.legend([cols[2]])\n    plt.subplot(2, 3, 4)\n    plt.plot(data[\"D\"], '.')\n    plt.legend([cols[3]])\n    plt.subplot(2, 3, 5)\n    plt.plot(data[\"E\"], '.')\n    plt.legend([cols[4]])\n    plt.subplot(2, 3, 6)\n    plt.plot(data[\"F\"], '.')\n    plt.legend([cols[5]])\n    plt.show()\n\n# Plot pairwise scatter plots using sns\ndef plot_pairwise(data, cols, kind = \"scatter\"):\n    # Apply seaborn style\n    plt.style.use(\"seaborn\")\n    # Create a scatter plot of the pairwise relationships\n    sns.pairplot(data, vars=cols, size=3, aspect=1.5, kind=kind)\n    plt.show()\n\ndef plot_boxes(data1, data2):\n    # Apply seaborn style\n    plt.style.use(\"seaborn\")\n    # Create scatter plots for relation between two columns\n    plt.subplot(1, 2, 1)\n    plt.plot(data1, '.')\n    plt.title(\"A\")\n    plt.subplot(1, 2, 2)\n    plt.plot(data2, '.')\n    plt.title(\"B\")\n    plt.show()\n\n# Function to compute t-test for 2 columns in 2 dataframes\ndef t_test(data1, data2, cols):\n    # Perform t-test\n    t, p = stats.ttest_ind(data1[cols[0]], data2[cols[0]])\n    # Print results\n    print(\"t-statistic: %f\" % t)\n    print(\"p-value: %f\" % p)\n    # Create a bar plot of the p-values\n    plt.figure()\n    plt.bar([0, 1], [p, 1-p])\n    plt.xticks([0, 1], ['p-value', '1-p-value'])\n    plt.show()\n\nif __name__ == \"__main__\":\n    # data['B'] = 1\n    data = pd.read_csv(\"sample/data_299.csv\", index_col=0)\n    #plot_pairwise(data, data.columns, kind = \"scatter\")\n    # plot_corr(data)q\n    #plot_boxes(data[\"A\"], data[\"B\"], data.columns)\n    # Do a statistical t-test between two columns\n    t_test(data1, data3, cols=[\"A\"])\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/mega-analysis.py b/mega-analysis.py
+--- a/mega-analysis.py	(revision e48c46fd331adc9bc70391400a50044decd728e1)
++++ b/mega-analysis.py	(date 1651140270827)
+@@ -6,7 +6,7 @@
+ 
+ data1 = pd.read_csv("sample/data_279.csv", index_col=0)
+ data2 = pd.read_csv("sample/data_299_A=1.3.csv", index_col=0)
+-data3 = pd.read_csv("sample/data_300_c=0.csv", index_col=0)
++data3 = pd.read_csv("sample/data_302_c=0.csv", index_col=0)
+ 
+ 
+ # Function to plot histograms for each column
+@@ -153,10 +153,14 @@
+ 
+ if __name__ == "__main__":
+     # data['B'] = 1
+-    data = pd.read_csv("sample/data_299.csv", index_col=0)
+-    #plot_pairwise(data, data.columns, kind = "scatter")
++    data1 = pd.read_csv("sample/data_279.csv", index_col=0)
++    #plot_pairwise(data1, data1.columns, kind = "scatter")
++
++    data2 = pd.read_csv("sample/data_302_C=0.csv", index_col=0)
++    #plot_pairwise(data2, data2.columns, kind="scatter")
++    print(stats.ttest_ind(data1['D'], data2['D']))
+     # plot_corr(data)q
+     #plot_boxes(data["A"], data["B"], data.columns)
+     # Do a statistical t-test between two columns
+-    t_test(data1, data3, cols=["A"])
++    #t_test(data1, data3, cols=["A"])
+ 
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_51_[Changes]/shelved.patch
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_51_[Changes]/shelved.patch b/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_51_[Changes]/shelved.patch
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_51_[Changes]/shelved.patch	(revision e48c46fd331adc9bc70391400a50044decd728e1)
++++ /dev/null	(revision e48c46fd331adc9bc70391400a50044decd728e1)
+@@ -1,334 +0,0 @@
+-Index: .idea/workspace.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\">\n      <change afterPath=\"$PROJECT_DIR$/.RData\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.Rhistory\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/r_causality.R\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/sample/data_518.csv\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/misc.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/Analysis.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Analysis.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/structEqModel.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/structEqModel.py\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitSEFilterConfiguration\">\n    <file-type-list>\n      <filtered-out-file-type name=\"LOCAL_BRANCH\" />\n      <filtered-out-file-type name=\"REMOTE_BRANCH\" />\n      <filtered-out-file-type name=\"TAG\" />\n      <filtered-out-file-type name=\"COMMIT_BY_MESSAGE\" />\n    </file-type-list>\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"286lc3q2Pdeol8JWLyDnUL8E3Jb\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"RunManager\" selected=\"Python.Analysis\">\n    <configuration name=\"Analysis\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/Analysis.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"distributions\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"Project3\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/distributions.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"sampleLoad\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/sampleLoad.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"structEqModel\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/structEqModel.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"Python.Analysis\" />\n        <item itemvalue=\"Python.structEqModel\" />\n        <item itemvalue=\"Python.sampleLoad\" />\n        <item itemvalue=\"Python.distributions\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\" />\n      <created>1650544993883</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1650544993883</updated>\n    </task>\n    <servers />\n  </component>\n  <component name=\"XDebuggerManager\">\n    <breakpoint-manager>\n      <breakpoints>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\n          <url>file://$PROJECT_DIR$/distributions.py</url>\n          <line>29</line>\n          <option name=\"timeStamp\" value=\"1\" />\n        </line-breakpoint>\n      </breakpoints>\n    </breakpoint-manager>\n  </component>\n</project>
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+---- a/.idea/workspace.xml	(revision 350fca2e954288d1fcf7c305935a8d2aa1527be7)
+-+++ b/.idea/workspace.xml	(date 1650826214720)
+-@@ -1,15 +1,17 @@
+- <?xml version="1.0" encoding="UTF-8"?>
+- <project version="4">
+-+  <component name="AutoImportSettings">
+-+    <option name="autoReloadType" value="SELECTIVE" />
+-+  </component>
+-   <component name="ChangeListManager">
+--    <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="">
+--      <change afterPath="$PROJECT_DIR$/.RData" afterDir="false" />
+--      <change afterPath="$PROJECT_DIR$/.Rhistory" afterDir="false" />
+--      <change afterPath="$PROJECT_DIR$/r_causality.R" afterDir="false" />
+--      <change afterPath="$PROJECT_DIR$/sample/data_518.csv" afterDir="false" />
+--      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+-+    <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="workspace files">
+-+      <change afterPath="$PROJECT_DIR$/causal_model.png" afterDir="false" />
+-+      <change afterPath="$PROJECT_DIR$/distfit.py" afterDir="false" />
+-+      <change afterPath="$PROJECT_DIR$/dowhy_test.py" afterDir="false" />
+-+      <change afterPath="$PROJECT_DIR$/obs_data20-32-14.png" afterDir="false" />
+-+      <change afterPath="$PROJECT_DIR$/packageTests/GPyPackagee.py" afterDir="false" />
+-+      <change afterPath="$PROJECT_DIR$/packageTests/skLearnGP.py" afterDir="false" />
+-       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+--      <change beforePath="$PROJECT_DIR$/Analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analysis.py" afterDir="false" />
+--      <change beforePath="$PROJECT_DIR$/structEqModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/structEqModel.py" afterDir="false" />
+-     </list>
+-     <option name="SHOW_DIALOG" value="false" />
+-     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+-@@ -45,7 +47,11 @@
+-     <option name="hideEmptyMiddlePackages" value="true" />
+-     <option name="showLibraryContents" value="true" />
+-   </component>
+--  <component name="RunManager" selected="Python.Analysis">
+-+  <component name="PropertiesComponent">
+-+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+-+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+-+  </component>
+-+  <component name="RunManager" selected="Python.GPyPackagee">
+-     <configuration name="Analysis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+-       <module name="CausalInference" />
+-       <option name="INTERPRETER_OPTIONS" value="" />
+-@@ -67,19 +73,40 @@
+-       <option name="INPUT_FILE" value="" />
+-       <method v="2" />
+-     </configuration>
+--    <configuration name="distributions" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+--      <module name="Project3" />
+-+    <configuration name="GPyPackage" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+-+      <module name="CausalInference" />
+-       <option name="INTERPRETER_OPTIONS" value="" />
+-       <option name="PARENT_ENVS" value="true" />
+-       <envs>
+-         <env name="PYTHONUNBUFFERED" value="1" />
+-       </envs>
+--      <option name="SDK_HOME" value="/usr/local/bin/python3.8" />
+-+      <option name="SDK_HOME" value="" />
+-+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/packageTests" />
+-+      <option name="IS_MODULE_SDK" value="false" />
+-+      <option name="ADD_CONTENT_ROOTS" value="true" />
+-+      <option name="ADD_SOURCE_ROOTS" value="true" />
+-+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/packageTests/GPyPackage.py" />
+-+      <option name="PARAMETERS" value="" />
+-+      <option name="SHOW_COMMAND_LINE" value="false" />
+-+      <option name="EMULATE_TERMINAL" value="false" />
+-+      <option name="MODULE_MODE" value="false" />
+-+      <option name="REDIRECT_INPUT" value="false" />
+-+      <option name="INPUT_FILE" value="" />
+-+      <method v="2" />
+-+    </configuration>
+-+    <configuration name="distfit" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+-+      <module name="CausalInference" />
+-+      <option name="INTERPRETER_OPTIONS" value="" />
+-+      <option name="PARENT_ENVS" value="true" />
+-+      <envs>
+-+        <env name="PYTHONUNBUFFERED" value="1" />
+-+      </envs>
+-+      <option name="SDK_HOME" value="" />
+-       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+-       <option name="IS_MODULE_SDK" value="false" />
+-       <option name="ADD_CONTENT_ROOTS" value="true" />
+-       <option name="ADD_SOURCE_ROOTS" value="true" />
+--      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distributions.py" />
+-+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distfit.py" />
+-       <option name="PARAMETERS" value="" />
+-       <option name="SHOW_COMMAND_LINE" value="false" />
+-       <option name="EMULATE_TERMINAL" value="false" />
+-@@ -88,7 +115,7 @@
+-       <option name="INPUT_FILE" value="" />
+-       <method v="2" />
+-     </configuration>
+--    <configuration name="sampleLoad" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+-+    <configuration name="dowhy_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+-       <module name="CausalInference" />
+-       <option name="INTERPRETER_OPTIONS" value="" />
+-       <option name="PARENT_ENVS" value="true" />
+-@@ -100,7 +127,7 @@
+-       <option name="IS_MODULE_SDK" value="false" />
+-       <option name="ADD_CONTENT_ROOTS" value="true" />
+-       <option name="ADD_SOURCE_ROOTS" value="true" />
+--      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/sampleLoad.py" />
+-+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dowhy_test.py" />
+-       <option name="PARAMETERS" value="" />
+-       <option name="SHOW_COMMAND_LINE" value="false" />
+-       <option name="EMULATE_TERMINAL" value="false" />
+-@@ -132,10 +159,11 @@
+-     </configuration>
+-     <recent_temporary>
+-       <list>
+-+        <item itemvalue="Python.GPyPackagee" />
+-+        <item itemvalue="Python.dowhy_test" />
+-+        <item itemvalue="Python.distfit" />
+-         <item itemvalue="Python.Analysis" />
+-         <item itemvalue="Python.structEqModel" />
+--        <item itemvalue="Python.sampleLoad" />
+--        <item itemvalue="Python.distributions" />
+-       </list>
+-     </recent_temporary>
+-   </component>
+-@@ -148,7 +176,70 @@
+-       <option name="presentableId" value="Default" />
+-       <updated>1650544993883</updated>
+-     </task>
+-+    <task id="LOCAL-00001" summary="r data analysis">
+-+      <created>1650822243457</created>
+-+      <option name="number" value="00001" />
+-+      <option name="presentableId" value="LOCAL-00001" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822243457</updated>
+-+    </task>
+-+    <task id="LOCAL-00002" summary="unversioned files">
+-+      <created>1650822263063</created>
+-+      <option name="number" value="00002" />
+-+      <option name="presentableId" value="LOCAL-00002" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822263063</updated>
+-+    </task>
+-+    <task id="LOCAL-00003" summary="print information with intervention">
+-+      <created>1650822289658</created>
+-+      <option name="number" value="00003" />
+-+      <option name="presentableId" value="LOCAL-00003" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822289658</updated>
+-+    </task>
+-+    <task id="LOCAL-00004" summary="new dataset with A = 1">
+-+      <created>1650822313588</created>
+-+      <option name="number" value="00004" />
+-+      <option name="presentableId" value="LOCAL-00004" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822313588</updated>
+-+    </task>
+-+    <task id="LOCAL-00005" summary="structmodel updated">
+-+      <created>1650822346185</created>
+-+      <option name="number" value="00005" />
+-+      <option name="presentableId" value="LOCAL-00005" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822346185</updated>
+-+    </task>
+-+    <task id="LOCAL-00006" summary="workspace files">
+-+      <created>1650822358991</created>
+-+      <option name="number" value="00006" />
+-+      <option name="presentableId" value="LOCAL-00006" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822358991</updated>
+-+    </task>
+-+    <option name="localTasksCounter" value="7" />
+-     <servers />
+-+  </component>
+-+  <component name="Vcs.Log.Tabs.Properties">
+-+    <option name="TAB_STATES">
+-+      <map>
+-+        <entry key="MAIN">
+-+          <value>
+-+            <State />
+-+          </value>
+-+        </entry>
+-+      </map>
+-+    </option>
+-+  </component>
+-+  <component name="VcsManagerConfiguration">
+-+    <MESSAGE value="r data analysis" />
+-+    <MESSAGE value="unversioned files" />
+-+    <MESSAGE value="print information with intervention" />
+-+    <MESSAGE value="new dataset with A = 1" />
+-+    <MESSAGE value="structmodel updated" />
+-+    <MESSAGE value="workspace files" />
+-+    <option name="LAST_COMMIT_MESSAGE" value="workspace files" />
+-   </component>
+-   <component name="XDebuggerManager">
+-     <breakpoint-manager>
+-Index: dowhy_test.py
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/dowhy_test.py b/dowhy_test.py
+-new file mode 100644
+---- /dev/null	(date 1650825186754)
+-+++ b/dowhy_test.py	(date 1650825186754)
+-@@ -0,0 +1,69 @@
+-+
+-+
+-+# Required libraries
+-+import dowhy
+-+from dowhy import CausalModel
+-+import dowhy.datasets
+-+
+-+# Avoiding unnecessary log messges and warnings
+-+import logging
+-+logging.getLogger("dowhy").setLevel(logging.WARNING)
+-+import warnings
+-+from sklearn.exceptions import DataConversionWarning
+-+warnings.filterwarnings(action='ignore', category=DataConversionWarning)
+-+
+-+# Load some sample data
+-+data = dowhy.datasets.linear_dataset(
+-+    beta=10,
+-+    num_common_causes=5,
+-+    num_instruments=2,
+-+    num_samples=10000,
+-+    treatment_is_binary=True,
+-+    stddev_treatment_noise=10)
+-+
+-+# I. Create a causal model from the data and domain knowledge.
+-+model = CausalModel(
+-+    data=data["df"],
+-+    treatment=data["treatment_name"],
+-+    outcome=data["outcome_name"],
+-+    common_causes=data["common_causes_names"],
+-+    instruments=data["instrument_names"])
+-+
+-+model.view_model(layout="dot")
+-+from IPython.display import Image, display
+-+display(Image(filename="causal_model.png"))
+-+
+-+# III. Estimate the target estimand using a statistical method.
+-+propensity_strat_estimate = model.estimate_effect(identified_estimand,
+-+                                 method_name="backdoor.dowhy.propensity_score_stratification")
+-+
+-+print(propensity_strat_estimate)
+-+"""
+-+if __name__ == "__main__":
+-+    import numpy as np
+-+    import pandas as pd
+-+    import matplotlib.pyplot as plt
+-+    import math
+-+    import dowhy
+-+    from dowhy import CausalModel
+-+    import dowhy.datasets, dowhy.plotter
+-+
+-+    # Config dict to set the logging level
+-+    import logging.config
+-+
+-+    DEFAULT_LOGGING = {
+-+        'version': 1,
+-+        'disable_existing_loggers': False,
+-+        'loggers': {
+-+            '': {
+-+                'level': 'INFO',
+-+            },
+-+        }
+-+    }
+-+
+-+    logging.config.dictConfig(DEFAULT_LOGGING)
+-+
+-+    df = pd.read_csv('sample/data_569.csv', index_col = 0)
+-+
+-+    dowhy.plotter.plot_treatment_outcome(df["A"], df["B"],
+-+                                         df["C"])"""
+-\ No newline at end of file
+-Index: packageTests/skLearnGP.py
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/packageTests/skLearnGP.py b/packageTests/skLearnGP.py
+-new file mode 100644
+---- /dev/null	(date 1650826214371)
+-+++ b/packageTests/skLearnGP.py	(date 1650826214371)
+-@@ -0,0 +1,16 @@
+-+from sklearn import gaussian_process
+-+from sklearn.gaussian_process.kernels import Matern, WhiteKernel, ConstantKernel
+-+
+-+kernel = ConstantKernel() + Matern(length_scale=2, nu=3/2) + WhiteKernel(noise_level=1)
+-+
+-+df = pd.read_csv('sample/data_569.csv', index_col = 0)
+-+x = df['A']
+-+X = x.reshape(-1, 1)
+-+print(X.shape)
+-+
+-+gp = gaussian_process.GaussianProcessRegressor(kernel=kernel)
+-+gp.fit(X, y)
+-+GaussianProcessRegressor(alpha=1e-10, copy_X_train=True,
+-+kernel=1**2 + Matern(length_scale=2, nu=1.5) + WhiteKernel(noise_level=1),
+-+n_restarts_optimizer=0, normalize_y=False,
+-+optimizer='fmin_l_bfgs_b', random_state=None)
+-\ No newline at end of file
+-Index: packageTests/GPyPackage.py
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/packageTests/GPyPackage.py b/packageTests/GPyPackage.py
+-new file mode 100644
+---- /dev/null	(date 1650825475624)
+-+++ b/packageTests/GPyPackage.py	(date 1650825475624)
+-@@ -0,0 +1,17 @@
+-+from GPy import Model, Param
+-+import scipy
+-+class Rosen(Model):
+-+    def __init__(self, X, name='rosenbrock'):
+-+        super(Rosen, self).__init__(name=name)
+-+        self.X = Param("input", X)
+-+        self.add_parameter(self.X)
+-+
+-+    def log_likelihood(self):
+-+        return -scipy.optimize.rosen(self.X)
+-+
+-+    def parameters_changed(self):
+-+        self.X.gradient = -scipy.optimize.rosen_der(self.X)
+-+
+-+if __name__ == '__main__':
+-+    m = Rosen(np.array([-1, -1]))
+-+    print(m)
+-\ No newline at end of file
+-diff --git a/distfit.py b/distfit.py
+-new file mode 100644
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_54_[Changes]/shelved.patch
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_54_[Changes]/shelved.patch b/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_54_[Changes]/shelved.patch
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_54_[Changes]/shelved.patch	(revision e48c46fd331adc9bc70391400a50044decd728e1)
++++ /dev/null	(revision e48c46fd331adc9bc70391400a50044decd728e1)
+@@ -1,115 +0,0 @@
+-Index: Analysis.py
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+>\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nimport numpy as np\n\ndef MI(x,y,Nbins = 21, plot = False):\n    bins = np.linspace(min(x),max(x),Nbins)\n    eps = np.spacing(1)\n    x_marginal = np.histogram(x,bins)[0]\n    y_marginal = np.histogram(y,bins)[0]\n    x_marginal = x_marginal/x_marginal.sum()\n    y_marginal = y_marginal/y_marginal.sum()\n    xy_joint = np.histogram2d(x,y,bins = (bins,bins))[0]\n    xy_joint = xy_joint/xy_joint.sum()\n    MI = np.sum(xy_joint * np.log(xy_joint / (x_marginal[:, None] * y_marginal[None, :] + eps) + eps))\n    if plot:\n        plt.figure()\n        plt.subplot(1,2,1)\n        plt.imshow(xy_joint,origin = 'lower')\n        plt.title('Joint Distribution')\n        plt.subplot(1,2,2)\n        plt.imshow((x_marginal[:,None]*y_marginal[None,:]).T,origin = 'lower')\n        plt.title('Product of marginals')\n        plt.suptitle('Mutual Information: '+str(MI))\n        plt.show()\n    return MI\n\ndef multiple_MI(df):\n\n    cols = df.columns\n    out = np.zeros((len(cols),len(cols)))\n    for i in range(len(cols)):\n        for j in range(len(cols)):\n            out[i,j] = MI(df[cols[i]],df[cols[j]])\n    return pd.DataFrame(out, columns=cols, index=cols)\n\ndef diffInStats(df1,df2, col):\n    print()\n    print(\"Basic description of the data before and after an intervention\")#on {col}\".format(col=col))\"\n    print(\"No intervention: \")\n    print(\"mean: {mean:.3f}\".format(mean = df1[col].mean())\n          ,\"std: {std:.3f}\".format(std = df1[col].std())\n          ,\"min: {min:.3f}\".format(min = df1[col].min())\n          ,\"max: {max:.3f}\".format(max = df1[col].max()),\n          \"median: {median:.3f}\".format(median = df1[col].median()))\n\n    print(\"Intervention: \")\n    print(\"mean: {mean:.3f}\".format(mean = df2[col].mean())\n              ,\"std: {std:.3f}\".format(std = df2[col].std())\n              ,\"min: {min:.3f}\".format(min = df2[col].min())\n              ,\"max: {max:.3f}\".format(max = df2[col].max()),\n              \"median: {median:.3f}\".format(median = df2[col].median()))\n\n    print(\"Difference: \")\n    print(\"mean: {mean:.3f}\".format(mean = abs(df2[col].mean() - df1[col].mean())),\n          \"std: {std:.3f}\".format(std = abs(df2[col].std() - df1[col].std())),\n          \"min: {min:.3f}\".format(min = abs(df2[col].min() - df1[col].min())),\n          \"max: {max:.3f}\".format(max = abs(df2[col].max() - df1[col].max())),\n          \"median: {median:.3f}\".format(median = abs(df2[col].median() - df1[col].median())))\n\ndef main(data_path,plot = False):\n\n    df = pd.read_csv('sample/' + data_path + '.csv', index_col=0)\n\n    if plot:\n        #Pairplot\n        sns.pairplot(df, height=1.5)\n        plt.savefig('plots/Scatter_Pairplot_'+data_path+'.png')\n        plt.show()\n        sns.pairplot(df,kind =\"kde\", height=1.5)\n        plt.savefig('plots/KDE_Pairplot.png_'+data_path+'.png')\n        plt.show()\n\n\n    print(\"Basic description of the data: \")\n    print(df.describe())\n    print()\n    print(\"Correlation matrix: \")\n    print(df.corr())\n    print()\n    print(\"Mutual Information Matrix: \")\n    print(multiple_MI(df))\n\n\n\n\ndf = pd.read_csv('sample/data_569.csv', index_col = 0)\ndf2 = pd.read_csv('sample/data_C=1-57.csv', index_col = 0)\ndf3 = pd.read_csv('sample/data_C=-1-57.csv', index_col = 0)\n\nmain(data_path = 'data_B=2', plot = True)\n\ndiffInStats(df,df2,'A')\n\n\n\n\n#function to calculate mutual information\n\n\n
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/Analysis.py b/Analysis.py
+---- a/Analysis.py	(revision 350fca2e954288d1fcf7c305935a8d2aa1527be7)
+-+++ b/Analysis.py	(date 1650825842633)
+-@@ -1,4 +1,3 @@
+--
+- import pandas as pd
+- import matplotlib.pyplot as plt
+- import seaborn as sns
+-@@ -37,7 +36,7 @@
+- 
+- def diffInStats(df1,df2, col):
+-     print()
+--    print("Basic description of the data before and after an intervention")#on {col}".format(col=col))"
+-+    print("Basic description of the data in col {col} before and after an intervention".format(col=col))
+-     print("No intervention: ")
+-     print("mean: {mean:.3f}".format(mean = df1[col].mean())
+-           ,"std: {std:.3f}".format(std = df1[col].std())
+-@@ -83,19 +82,20 @@
+-     print(multiple_MI(df))
+- 
+- 
+--
+--
+- df = pd.read_csv('sample/data_569.csv', index_col = 0)
+--df2 = pd.read_csv('sample/data_C=1-57.csv', index_col = 0)
+--df3 = pd.read_csv('sample/data_C=-1-57.csv', index_col = 0)
+-+df2 = pd.read_csv('sample/data_B=2.csv', index_col = 0)
+- 
+--main(data_path = 'data_B=2', plot = True)
+-+main(data_path = 'data_A=2', plot = True)
+- 
+--diffInStats(df,df2,'A')
+- 
+-+plt.figure()
+-+plt.subplot(1,2,1)
+-+sns.histplot(df['D'],bins = 20,color = 'blue')
+-+plt.subplot(1,2,2)
+-+sns.histplot(df2['D'],bins = 20,color = 'red')
+-+plt.show()
+- 
+- 
+- 
+--#function to calculate mutual information
+- 
+- 
+-Index: .idea/misc.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ProjectRootManager\" version=\"2\" project-jdk-name=\"Python 3.8 (2)\" project-jdk-type=\"Python SDK\" />\n</project>
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/.idea/misc.xml b/.idea/misc.xml
+---- a/.idea/misc.xml	(revision 350fca2e954288d1fcf7c305935a8d2aa1527be7)
+-+++ b/.idea/misc.xml	(date 1650823564727)
+-@@ -1,4 +1,4 @@
+- <?xml version="1.0" encoding="UTF-8"?>
+- <project version="4">
+--  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8 (2)" project-jdk-type="Python SDK" />
+-+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8" project-jdk-type="Python SDK" />
+- </project>
+-\ No newline at end of file
+-Index: .idea/workspace.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\">\n      <change afterPath=\"$PROJECT_DIR$/.RData\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.Rhistory\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/r_causality.R\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/sample/data_518.csv\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/misc.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/Analysis.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Analysis.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/structEqModel.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/structEqModel.py\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitSEFilterConfiguration\">\n    <file-type-list>\n      <filtered-out-file-type name=\"LOCAL_BRANCH\" />\n      <filtered-out-file-type name=\"REMOTE_BRANCH\" />\n      <filtered-out-file-type name=\"TAG\" />\n      <filtered-out-file-type name=\"COMMIT_BY_MESSAGE\" />\n    </file-type-list>\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"286lc3q2Pdeol8JWLyDnUL8E3Jb\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"RunManager\" selected=\"Python.Analysis\">\n    <configuration name=\"Analysis\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/Analysis.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"distributions\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"Project3\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/distributions.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"sampleLoad\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/sampleLoad.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"structEqModel\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/structEqModel.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"Python.Analysis\" />\n        <item itemvalue=\"Python.structEqModel\" />\n        <item itemvalue=\"Python.sampleLoad\" />\n        <item itemvalue=\"Python.distributions\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\" />\n      <created>1650544993883</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1650544993883</updated>\n    </task>\n    <servers />\n  </component>\n  <component name=\"XDebuggerManager\">\n    <breakpoint-manager>\n      <breakpoints>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\n          <url>file://$PROJECT_DIR$/distributions.py</url>\n          <line>29</line>\n          <option name=\"timeStamp\" value=\"1\" />\n        </line-breakpoint>\n      </breakpoints>\n    </breakpoint-manager>\n  </component>\n</project>
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+---- a/.idea/workspace.xml	(revision 350fca2e954288d1fcf7c305935a8d2aa1527be7)
+-+++ b/.idea/workspace.xml	(date 1650823936923)
+-@@ -2,14 +2,10 @@
+- <project version="4">
+-   <component name="ChangeListManager">
+-     <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="">
+--      <change afterPath="$PROJECT_DIR$/.RData" afterDir="false" />
+--      <change afterPath="$PROJECT_DIR$/.Rhistory" afterDir="false" />
+--      <change afterPath="$PROJECT_DIR$/r_causality.R" afterDir="false" />
+--      <change afterPath="$PROJECT_DIR$/sample/data_518.csv" afterDir="false" />
+-+      <change beforePath="$PROJECT_DIR$/.idea/CausalInference.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/CausalInference.iml" afterDir="false" />
+-       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+-       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-       <change beforePath="$PROJECT_DIR$/Analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analysis.py" afterDir="false" />
+--      <change beforePath="$PROJECT_DIR$/structEqModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/structEqModel.py" afterDir="false" />
+-     </list>
+-     <option name="SHOW_DIALOG" value="false" />
+-     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+-Index: .idea/CausalInference.iml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<module version=\"4\">\n  <component name=\"NewModuleRootManager\">\n    <orderEntry type=\"jdk\" jdkName=\"Python 3.8 (2)\" jdkType=\"Python SDK\" />\n    <orderEntry type=\"sourceFolder\" forTests=\"false\" />\n  </component>\n</module>
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/.idea/CausalInference.iml b/.idea/CausalInference.iml
+---- a/.idea/CausalInference.iml	(revision 350fca2e954288d1fcf7c305935a8d2aa1527be7)
+-+++ b/.idea/CausalInference.iml	(date 1650823564713)
+-@@ -1,7 +1,7 @@
+- <?xml version="1.0" encoding="UTF-8"?>
+- <module version="4">
+-   <component name="NewModuleRootManager">
+--    <orderEntry type="jdk" jdkName="Python 3.8 (2)" jdkType="Python SDK" />
+-+    <orderEntry type="jdk" jdkName="Python 3.8" jdkType="Python SDK" />
+-     <orderEntry type="sourceFolder" forTests="false" />
+-   </component>
+- </module>
+-\ No newline at end of file
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_19_59_[Changes]/shelved.patch
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_19_59_[Changes]/shelved.patch b/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_19_59_[Changes]/shelved.patch
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_19_59_[Changes]/shelved.patch	(revision e48c46fd331adc9bc70391400a50044decd728e1)
++++ /dev/null	(revision e48c46fd331adc9bc70391400a50044decd728e1)
+@@ -1,112 +0,0 @@
+-Index: .idea/workspace.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\">\n      <change afterPath=\"$PROJECT_DIR$/.RData\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.Rhistory\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/r_causality.R\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/sample/data_518.csv\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/misc.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/Analysis.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Analysis.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/structEqModel.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/structEqModel.py\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitSEFilterConfiguration\">\n    <file-type-list>\n      <filtered-out-file-type name=\"LOCAL_BRANCH\" />\n      <filtered-out-file-type name=\"REMOTE_BRANCH\" />\n      <filtered-out-file-type name=\"TAG\" />\n      <filtered-out-file-type name=\"COMMIT_BY_MESSAGE\" />\n    </file-type-list>\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"286lc3q2Pdeol8JWLyDnUL8E3Jb\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"RunManager\" selected=\"Python.Analysis\">\n    <configuration name=\"Analysis\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/Analysis.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"distributions\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"Project3\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/distributions.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"sampleLoad\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/sampleLoad.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"structEqModel\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/structEqModel.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"Python.Analysis\" />\n        <item itemvalue=\"Python.structEqModel\" />\n        <item itemvalue=\"Python.sampleLoad\" />\n        <item itemvalue=\"Python.distributions\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\" />\n      <created>1650544993883</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1650544993883</updated>\n    </task>\n    <servers />\n  </component>\n  <component name=\"XDebuggerManager\">\n    <breakpoint-manager>\n      <breakpoints>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\n          <url>file://$PROJECT_DIR$/distributions.py</url>\n          <line>29</line>\n          <option name=\"timeStamp\" value=\"1\" />\n        </line-breakpoint>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\n          <url>file://$PROJECT_DIR$/Analysis.py</url>\n          <line>32</line>\n          <option name=\"timeStamp\" value=\"2\" />\n        </line-breakpoint>\n      </breakpoints>\n    </breakpoint-manager>\n  </component>\n</project>
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+---- a/.idea/workspace.xml	(revision c7754a07220e372dd5d71f36975c1433f922c937)
+-+++ b/.idea/workspace.xml	(date 1650823082211)
+-@@ -1,15 +1,11 @@
+- <?xml version="1.0" encoding="UTF-8"?>
+- <project version="4">
+-+  <component name="AutoImportSettings">
+-+    <option name="autoReloadType" value="SELECTIVE" />
+-+  </component>
+-   <component name="ChangeListManager">
+--    <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="">
+--      <change afterPath="$PROJECT_DIR$/.RData" afterDir="false" />
+--      <change afterPath="$PROJECT_DIR$/.Rhistory" afterDir="false" />
+--      <change afterPath="$PROJECT_DIR$/r_causality.R" afterDir="false" />
+--      <change afterPath="$PROJECT_DIR$/sample/data_518.csv" afterDir="false" />
+--      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+-+    <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="workspace files">
+-       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+--      <change beforePath="$PROJECT_DIR$/Analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analysis.py" afterDir="false" />
+--      <change beforePath="$PROJECT_DIR$/structEqModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/structEqModel.py" afterDir="false" />
+-     </list>
+-     <option name="SHOW_DIALOG" value="false" />
+-     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+-@@ -45,6 +41,10 @@
+-     <option name="hideEmptyMiddlePackages" value="true" />
+-     <option name="showLibraryContents" value="true" />
+-   </component>
+-+  <component name="PropertiesComponent">
+-+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+-+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+-+  </component>
+-   <component name="RunManager" selected="Python.Analysis">
+-     <configuration name="Analysis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+-       <module name="CausalInference" />
+-@@ -148,7 +148,70 @@
+-       <option name="presentableId" value="Default" />
+-       <updated>1650544993883</updated>
+-     </task>
+-+    <task id="LOCAL-00001" summary="r data analysis">
+-+      <created>1650822243457</created>
+-+      <option name="number" value="00001" />
+-+      <option name="presentableId" value="LOCAL-00001" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822243457</updated>
+-+    </task>
+-+    <task id="LOCAL-00002" summary="unversioned files">
+-+      <created>1650822263063</created>
+-+      <option name="number" value="00002" />
+-+      <option name="presentableId" value="LOCAL-00002" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822263063</updated>
+-+    </task>
+-+    <task id="LOCAL-00003" summary="print information with intervention">
+-+      <created>1650822289658</created>
+-+      <option name="number" value="00003" />
+-+      <option name="presentableId" value="LOCAL-00003" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822289658</updated>
+-+    </task>
+-+    <task id="LOCAL-00004" summary="new dataset with A = 1">
+-+      <created>1650822313588</created>
+-+      <option name="number" value="00004" />
+-+      <option name="presentableId" value="LOCAL-00004" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822313588</updated>
+-+    </task>
+-+    <task id="LOCAL-00005" summary="structmodel updated">
+-+      <created>1650822346185</created>
+-+      <option name="number" value="00005" />
+-+      <option name="presentableId" value="LOCAL-00005" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822346185</updated>
+-+    </task>
+-+    <task id="LOCAL-00006" summary="workspace files">
+-+      <created>1650822358991</created>
+-+      <option name="number" value="00006" />
+-+      <option name="presentableId" value="LOCAL-00006" />
+-+      <option name="project" value="LOCAL" />
+-+      <updated>1650822358991</updated>
+-+    </task>
+-+    <option name="localTasksCounter" value="7" />
+-     <servers />
+-+  </component>
+-+  <component name="Vcs.Log.Tabs.Properties">
+-+    <option name="TAB_STATES">
+-+      <map>
+-+        <entry key="MAIN">
+-+          <value>
+-+            <State />
+-+          </value>
+-+        </entry>
+-+      </map>
+-+    </option>
+-+  </component>
+-+  <component name="VcsManagerConfiguration">
+-+    <MESSAGE value="r data analysis" />
+-+    <MESSAGE value="unversioned files" />
+-+    <MESSAGE value="print information with intervention" />
+-+    <MESSAGE value="new dataset with A = 1" />
+-+    <MESSAGE value="structmodel updated" />
+-+    <MESSAGE value="workspace files" />
+-+    <option name="LAST_COMMIT_MESSAGE" value="workspace files" />
+-   </component>
+-   <component name="XDebuggerManager">
+-     <breakpoint-manager>
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__20_54__Changes_.xml
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__20_54__Changes_.xml b/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__20_54__Changes_.xml
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__20_54__Changes_.xml	(revision e48c46fd331adc9bc70391400a50044decd728e1)
++++ /dev/null	(revision e48c46fd331adc9bc70391400a50044decd728e1)
+@@ -1,4 +0,0 @@
+-<changelist name="Uncommitted_changes_before_Update_at_24_04_2022,_20_54_[Changes]" date="1650826500443" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_54_[Changes]/shelved.patch" />
+-  <option name="DESCRIPTION" value="Uncommitted changes before Update at 24/04/2022, 20.54 [Changes]" />
+-</changelist>
+\ No newline at end of file
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__19_59__Changes_.xml
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__19_59__Changes_.xml b/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__19_59__Changes_.xml
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__19_59__Changes_.xml	(revision e48c46fd331adc9bc70391400a50044decd728e1)
++++ /dev/null	(revision e48c46fd331adc9bc70391400a50044decd728e1)
+@@ -1,4 +0,0 @@
+-<changelist name="Uncommitted_changes_before_Update_at_24_04_2022,_19_59_[Changes]" date="1650823145005" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_19_59_[Changes]/shelved.patch" />
+-  <option name="DESCRIPTION" value="Uncommitted changes before Update at 24/04/2022, 19.59 [Changes]" />
+-</changelist>
+\ No newline at end of file
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__20_51__Changes_.xml
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__20_51__Changes_.xml b/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__20_51__Changes_.xml
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022__20_51__Changes_.xml	(revision e48c46fd331adc9bc70391400a50044decd728e1)
++++ /dev/null	(revision e48c46fd331adc9bc70391400a50044decd728e1)
+@@ -1,14 +0,0 @@
+-<changelist name="Uncommitted_changes_before_Update_at_24_04_2022,_20_51_[Changes]" date="1650826325252" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_51_[Changes]/shelved.patch" />
+-  <option name="DESCRIPTION" value="Uncommitted changes before Update at 24/04/2022, 20.51 [Changes]" />
+-  <binary>
+-    <option name="BEFORE_PATH" />
+-    <option name="AFTER_PATH" value="causal_model.png" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_51_[Changes]/causal_model.png" />
+-  </binary>
+-  <binary>
+-    <option name="BEFORE_PATH" />
+-    <option name="AFTER_PATH" value="obs_data20-32-14.png" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_24_04_2022,_20_51_[Changes]/obs_data20-32-14.png" />
+-  </binary>
+-</changelist>
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\">\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/Analysis.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Analysis.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/mega-analysis.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/mega-analysis.py\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitSEFilterConfiguration\">\n    <file-type-list>\n      <filtered-out-file-type name=\"LOCAL_BRANCH\" />\n      <filtered-out-file-type name=\"REMOTE_BRANCH\" />\n      <filtered-out-file-type name=\"TAG\" />\n      <filtered-out-file-type name=\"COMMIT_BY_MESSAGE\" />\n    </file-type-list>\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"286lc3q2Pdeol8JWLyDnUL8E3Jb\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"RunManager\" selected=\"Python.Analysis\">\n    <configuration name=\"Analysis\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/Analysis.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"distributions\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"Project3\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"/usr/local/bin/python3.8\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/distributions.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"sampleLoad\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/sampleLoad.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"structEqModel\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"CausalInference\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/structEqModel.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"Python.Analysis\" />\n        <item itemvalue=\"Python.structEqModel\" />\n        <item itemvalue=\"Python.sampleLoad\" />\n        <item itemvalue=\"Python.distributions\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"d8b352aa-e62a-4b10-b4a1-f0b7f529d303\" name=\"Changes\" comment=\"\" />\n      <created>1650544993883</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1650544993883</updated>\n    </task>\n    <servers />\n  </component>\n  <component name=\"XDebuggerManager\">\n    <breakpoint-manager>\n      <breakpoints>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\n          <url>file://$PROJECT_DIR$/distributions.py</url>\n          <line>29</line>\n          <option name=\"timeStamp\" value=\"1\" />\n        </line-breakpoint>\n      </breakpoints>\n    </breakpoint-manager>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision e48c46fd331adc9bc70391400a50044decd728e1)
++++ b/.idea/workspace.xml	(date 1651582391216)
+@@ -1,9 +1,14 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="AutoImportSettings">
++    <option name="autoReloadType" value="SELECTIVE" />
++  </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="">
++    <list default="true" id="d8b352aa-e62a-4b10-b4a1-f0b7f529d303" name="Changes" comment="shelved">
++      <change afterPath="$PROJECT_DIR$/.idea/csv-plugin.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/CausalInference.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/CausalInference.iml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/Analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analysis.py" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/mega-analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/mega-analysis.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+@@ -40,7 +45,16 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="RunManager" selected="Python.Analysis">
++  <component name="PropertiesComponent">
++    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
++    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
++  </component>
++  <component name="RecentsManager">
++    <key name="MoveFile.RECENT_KEYS">
++      <recent name="$PROJECT_DIR$/sample_test" />
++    </key>
++  </component>
++  <component name="RunManager" selected="Python.mega-analysis">
+     <configuration name="Analysis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+       <module name="CausalInference" />
+       <option name="INTERPRETER_OPTIONS" value="" />
+@@ -62,19 +76,40 @@
+       <option name="INPUT_FILE" value="" />
+       <method v="2" />
+     </configuration>
+-    <configuration name="distributions" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+-      <module name="Project3" />
++    <configuration name="drawGraph" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
++      <module name="CausalInference" />
+       <option name="INTERPRETER_OPTIONS" value="" />
+       <option name="PARENT_ENVS" value="true" />
+       <envs>
+         <env name="PYTHONUNBUFFERED" value="1" />
+       </envs>
+-      <option name="SDK_HOME" value="/usr/local/bin/python3.8" />
++      <option name="SDK_HOME" value="" />
+       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+-      <option name="IS_MODULE_SDK" value="false" />
++      <option name="IS_MODULE_SDK" value="true" />
++      <option name="ADD_CONTENT_ROOTS" value="true" />
++      <option name="ADD_SOURCE_ROOTS" value="true" />
++      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/drawGraph.py" />
++      <option name="PARAMETERS" value="" />
++      <option name="SHOW_COMMAND_LINE" value="false" />
++      <option name="EMULATE_TERMINAL" value="false" />
++      <option name="MODULE_MODE" value="false" />
++      <option name="REDIRECT_INPUT" value="false" />
++      <option name="INPUT_FILE" value="" />
++      <method v="2" />
++    </configuration>
++    <configuration name="mega-analysis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
++      <module name="CausalInference" />
++      <option name="INTERPRETER_OPTIONS" value="" />
++      <option name="PARENT_ENVS" value="true" />
++      <envs>
++        <env name="PYTHONUNBUFFERED" value="1" />
++      </envs>
++      <option name="SDK_HOME" value="" />
++      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
++      <option name="IS_MODULE_SDK" value="true" />
+       <option name="ADD_CONTENT_ROOTS" value="true" />
+       <option name="ADD_SOURCE_ROOTS" value="true" />
+-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distributions.py" />
++      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mega-analysis.py" />
+       <option name="PARAMETERS" value="" />
+       <option name="SHOW_COMMAND_LINE" value="false" />
+       <option name="EMULATE_TERMINAL" value="false" />
+@@ -127,10 +162,11 @@
+     </configuration>
+     <recent_temporary>
+       <list>
++        <item itemvalue="Python.mega-analysis" />
++        <item itemvalue="Python.drawGraph" />
+         <item itemvalue="Python.Analysis" />
+         <item itemvalue="Python.structEqModel" />
+         <item itemvalue="Python.sampleLoad" />
+-        <item itemvalue="Python.distributions" />
+       </list>
+     </recent_temporary>
+   </component>
+@@ -143,15 +179,62 @@
+       <option name="presentableId" value="Default" />
+       <updated>1650544993883</updated>
+     </task>
++    <task id="LOCAL-00001" summary="refactoring">
++      <created>1651134794317</created>
++      <option name="number" value="00001" />
++      <option name="presentableId" value="LOCAL-00001" />
++      <option name="project" value="LOCAL" />
++      <updated>1651134794317</updated>
++    </task>
++    <task id="LOCAL-00002" summary="added ttest function">
++      <created>1651138114222</created>
++      <option name="number" value="00002" />
++      <option name="presentableId" value="LOCAL-00002" />
++      <option name="project" value="LOCAL" />
++      <updated>1651138114222</updated>
++    </task>
++    <task id="LOCAL-00003" summary="draw the graph using this script">
++      <created>1651141684544</created>
++      <option name="number" value="00003" />
++      <option name="presentableId" value="LOCAL-00003" />
++      <option name="project" value="LOCAL" />
++      <updated>1651141684545</updated>
++    </task>
++    <task id="LOCAL-00004" summary="shelved">
++      <created>1651141701461</created>
++      <option name="number" value="00004" />
++      <option name="presentableId" value="LOCAL-00004" />
++      <option name="project" value="LOCAL" />
++      <updated>1651141701461</updated>
++    </task>
++    <option name="localTasksCounter" value="5" />
+     <servers />
+   </component>
++  <component name="Vcs.Log.Tabs.Properties">
++    <option name="TAB_STATES">
++      <map>
++        <entry key="MAIN">
++          <value>
++            <State />
++          </value>
++        </entry>
++      </map>
++    </option>
++  </component>
++  <component name="VcsManagerConfiguration">
++    <MESSAGE value="refactoring" />
++    <MESSAGE value="added ttest function" />
++    <MESSAGE value="draw the graph using this script" />
++    <MESSAGE value="shelved" />
++    <option name="LAST_COMMIT_MESSAGE" value="shelved" />
++  </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+       <breakpoints>
+         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+-          <url>file://$PROJECT_DIR$/distributions.py</url>
+-          <line>29</line>
+-          <option name="timeStamp" value="1" />
++          <url>file://$PROJECT_DIR$/mega-analysis.py</url>
++          <line>160</line>
++          <option name="timeStamp" value="4" />
+         </line-breakpoint>
+       </breakpoints>
+     </breakpoint-manager>
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ProjectRootManager\" version=\"2\" project-jdk-name=\"Python 3.8\" project-jdk-type=\"Python SDK\" />\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision e48c46fd331adc9bc70391400a50044decd728e1)
++++ b/.idea/misc.xml	(date 1651138966230)
+@@ -1,4 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8" project-jdk-type="Python SDK" />
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8 (2)" project-jdk-type="Python SDK" />
+ </project>
+\ No newline at end of file
+Index: .idea/CausalInference.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<module type=\"PYTHON_MODULE\" version=\"4\">\n  <component name=\"NewModuleRootManager\">\n    <content url=\"file://$MODULE_DIR$\" />\n    <orderEntry type=\"inheritedJdk\" />\n    <orderEntry type=\"sourceFolder\" forTests=\"false\" />\n  </component>\n</module>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/CausalInference.iml b/.idea/CausalInference.iml
+--- a/.idea/CausalInference.iml	(revision e48c46fd331adc9bc70391400a50044decd728e1)
++++ b/.idea/CausalInference.iml	(date 1651138966234)
+@@ -2,7 +2,7 @@
+ <module type="PYTHON_MODULE" version="4">
+   <component name="NewModuleRootManager">
+     <content url="file://$MODULE_DIR$" />
+-    <orderEntry type="inheritedJdk" />
++    <orderEntry type="jdk" jdkName="Python 3.8 (2)" jdkType="Python SDK" />
+     <orderEntry type="sourceFolder" forTests="false" />
+   </component>
+ </module>
+\ No newline at end of file
