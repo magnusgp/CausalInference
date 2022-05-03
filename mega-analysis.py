@@ -160,6 +160,19 @@ def t_test(data1, data2, cols):
     # Print results
     print("p-value: %f" % p)
 
+def plotAllInterventions(vertex = "A"):
+    datas = [data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, data13, data14]
+    intervs = ["None", "A = 1.3", "C = 0", "E = 2", "F = pi/2", "D = -2", "B = 2", "C = 2", "A = -2", "C = -2, F = 0",
+               "F = 0", "A = 0", "None", "D = 0"]
+    plt.style.use("seaborn")
+    plt.figure()
+    plt.title("All Interventions plotted for " + vertex)
+    for i, data in enumerate(datas):
+        plt.subplot(4, 4, i+1)
+        plt.plot(data[vertex], '.')
+        plt.title(intervs[i])
+    plt.show()
+
 if __name__ == "__main__":
     # plot_pairwise(data_comb, data1.columns, kind = "scatter")
     # D = 0 (Intervention)
@@ -167,8 +180,11 @@ if __name__ == "__main__":
     # E = 0
     # Sker ikke noget med F og A
 
-    plot_hist_2(data1, data14, "C")
-    plot_hist_2(data1, data14, "E")
+    #plot_hist_2(data1, data14, "C")
+    #plot_hist_2(data1, data14, "E")
+    #plot_hist_2(data1, data5, "F")
+
+    plotAllInterventions(vertex = "A")
 
 
 
