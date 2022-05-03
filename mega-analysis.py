@@ -166,11 +166,11 @@ def plotAllInterventions(vertex = "A"):
                "F = 0", "A = 0", "None", "D = 0"]
     plt.style.use("seaborn")
     plt.figure()
-    plt.title("All Interventions plotted for " + vertex)
     for i, data in enumerate(datas):
         plt.subplot(4, 4, i+1)
         plt.plot(data[vertex], '.')
         plt.title(intervs[i])
+    plt.suptitle("All Interventions plotted for " + vertex)
     plt.show()
 
 if __name__ == "__main__":
